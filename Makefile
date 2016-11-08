@@ -9,7 +9,7 @@ CXX_FLAGS=-std=c++11 -Wall -Werror -g
 all : Libxbee Test1
 
 Libxbee : TransmitRequest RecievePacket
-	$(CXX) -shared -o $(BUILD_DIR)/libxbee.so $(BUILD_DIR)/TransmitRequest.o $(BUILD_DIR)/RecievePacket.o
+	$(CXX) -shared -o $(BUILD_DIR)/libxbee_plus.so $(BUILD_DIR)/TransmitRequest.o $(BUILD_DIR)/RecievePacket.o
 
 TransmitRequest:
 	$(CXX) $(CXX_FLAGS) -fPIC -c $(LIB_DIR)/TransmitRequest.cpp -o $(BUILD_DIR)/TransmitRequest.o
@@ -18,4 +18,4 @@ RecievePacket:
 	$(CXX) $(CXX_FLAGS) -fPIC -c $(LIB_DIR)/RecievePacket.cpp -o $(BUILD_DIR)/RecievePacket.o
 
 Test1:
-	$(CXX) $(CXX_FLAGS) $(TEST_DIR)/main.cpp -o $(BUILD_DIR)/Test1 -lboost_system -lboost_thread -L$(BUILD_DIR) -lxbee
+	$(CXX) $(CXX_FLAGS) $(TEST_DIR)/main.cpp -o $(BUILD_DIR)/Test1 -lboost_system -lboost_thread -L$(BUILD_DIR) -lxbee_plus

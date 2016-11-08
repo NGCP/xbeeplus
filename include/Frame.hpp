@@ -4,7 +4,7 @@
 #define FRAME_HPP
 
 //#include <stdint>
-#include "FrameType.hpp"
+#include "Xbee.hpp"
 
 namespace XBEE {
 	class Frame {
