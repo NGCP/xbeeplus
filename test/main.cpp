@@ -42,9 +42,10 @@ void read_complete(const system::error_code &error, size_t bytes_transferred) {
 }
 
 int testHexString() {
+    // Test cases for HexString function
+    
     std::string hexString;
     std::string expected;
-    // test transmission of various data types
 
     // uint8_t
     uint8_t val1 = 123;
@@ -160,7 +161,7 @@ int testHexString() {
     hexString = HexString(str2);
     assert(!strcmp(hexString.c_str(), expected.c_str()));
     std::cout << "\nTest Val: " << str2 << ", Big Endian Hex Representation: " << hexString << std::endl;
-    
+
     expected = "51302C5033352E31323334353637202D3132302E373839313031313132203130332E3738392C5230";
     hexString = HexString(str2, false);
     assert(!strcmp(hexString.c_str(), expected.c_str()));
@@ -169,8 +170,75 @@ int testHexString() {
     return 0;
 }
 
+int testByteSum() {
+    // Test cases for ByteSum function
+
+    // char array
+    char charArr[] = "Quad A";
+    uint8_t expected = 236;
+    int sum = 0;
+    sum = ByteSum(charArr);
+    assert(expected == sum);
+    std::cout << "Test Val: " << charArr << ", Byte Sum: " << sum << std::endl;
+
+    char charArr2[] = "Q0,P35.1234567 -120.789101112 103.789,R0";
+    expected = 19;
+    sum = ByteSum(charArr2);
+    assert(expected == sum);
+    std::cout << "Test Val: " << charArr2 << ", Byte Sum: " << sum << std::endl;
+
+    // std::string
+    std::string str = charArr;
+    expected = 236;
+    sum = ByteSum(str);
+    assert(expected == sum);
+    std::cout << "Test Val: " << str << ", Byte Sum: " << sum << std::endl;
+
+    expected = 236;
+    sum = ByteSum(str.c_str());
+    assert(expected == sum);
+    std::cout << "Test Val: " << str.c_str() << ", Byte Sum: " << sum << std::endl;
+
+    std::string str2 = charArr2;
+    expected = 19;
+    sum = ByteSum(str2);
+    assert(expected == sum);
+    std::cout << "Test Val: " << str2 << ", Byte Sum: " << sum << std::endl;
+
+    // uint8_t
+    uint8_t uint8 = 123;
+    expected = 123;
+    sum = ByteSum(uint8);
+    assert(expected == sum);
+    std::cout << "Test Val: " << uint8 << ", Byte Sum: " << sum << std::endl;
+
+    // uint16_t
+    uint16_t uint16 = 12345;
+    expected = 105;
+    sum = ByteSum(uint16);
+    assert(expected == sum);
+    std::cout << "Test Val: " << uint16 << ", Byte Sum: " << sum << std::endl;
+
+    // uint32_t
+    uint32_t uint32 = 1234567890;
+    expected = 179;
+    sum = ByteSum(uint32);
+    assert(expected == sum);
+    std::cout << "Test Val: " << uint32 << ", Byte Sum: " << sum << std::endl;
+
+    // uint64_t
+    uint64_t uint64 = 1234567890123456789;
+    expected = 51;
+    sum = ByteSum(uint64);
+    assert(expected == sum);
+    std::cout << "Test Val: " << uint64 << ", Byte Sum: " << sum << std::endl;
+    std::cout << "All tests for ByteSum function passed" << std::endl;
+    return 0;
+}
+
 int main(int argc, char* argv[]) {
     if (testHexString()) cout << "HexString test failed" << std::endl;
+    if (testByteSum()) cout << "ByteSum test failed" << std::endl;
 
     // Warning API level 1 (no escapes)
     //    TransmitRequest t1(0x0013A20040F8064D);
