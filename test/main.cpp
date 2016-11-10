@@ -1,5 +1,7 @@
 #include "../include/TransmitRequest.hpp"
 #include "../include/Xbee.hpp"
+#include "../include/Utility.hpp"
+#include "../lib/Utility.cpp"
 
 #include <iostream>
 #include <thread>
@@ -43,7 +45,7 @@ void read_complete(const system::error_code &error, size_t bytes_transferred) {
 
 int testHexString() {
     // Test cases for HexString function
-    
+
     std::string hexString;
     std::string expected;
 
@@ -132,29 +134,40 @@ int testHexString() {
     assert(!strcmp(hexString.c_str(), expected.c_str()));
     std::cout << "Test Val: " << val4 << ", Big Endian No Space Hex Representation: " << hexString << std::endl;
 
+    // string
+    expected = "51 75 61 64 20 41";
+    hexString = HexString("Quad A");
+    assert(!strcmp(hexString.c_str(), expected.c_str()));
+    std::cout << "\nTest Val: " << "Quad A" << ", Hex Representation: " << hexString << std::endl;
+    
+    expected = "517561642041";
+    hexString = HexString("Quad A", false);
+    assert(!strcmp(hexString.c_str(), expected.c_str()));
+    std::cout << "\nTest Val: " << "Quad A" << ", No Space Hex Representation: " << hexString << std::endl;
+    
     // char array
     char charStr[] = "Quad A";
     expected = "51 75 61 64 20 41";
     hexString = HexString(charStr);
     assert(!strcmp(hexString.c_str(), expected.c_str()));
-    std::cout << "\nTest Val: " << charStr << ", Big Endian Hex Representation: " << hexString << std::endl;
+    std::cout << "\nTest Val: " << charStr << ", Hex Representation: " << hexString << std::endl;
 
     expected = "517561642041";
     hexString = HexString(charStr, false);
     assert(!strcmp(hexString.c_str(), expected.c_str()));
-    std::cout << "\nTest Val: " << charStr << ", Big Endian No Space Hex Representation: " << hexString << std::endl;
+    std::cout << "\nTest Val: " << charStr << ", No Space Hex Representation: " << hexString << std::endl;
 
-    // string
+    // std::string
     std::string str1 = "Quad ABC";
     expected = "51 75 61 64 20 41 42 43";
     hexString = HexString(str1);
     assert(!strcmp(hexString.c_str(), expected.c_str()));
-    std::cout << "\nTest Val: " << str1 << ", Big Endian Hex Representation: " << hexString << std::endl;
+    std::cout << "\nTest Val: " << str1 << ", Hex Representation: " << hexString << std::endl;
 
     expected = "5175616420414243";
     hexString = HexString(str1, false);
     assert(!strcmp(hexString.c_str(), expected.c_str()));
-    std::cout << "\nTest Val: " << str1 << ", Big Endian No Space Hex Representation: " << hexString << std::endl;
+    std::cout << "\nTest Val: " << str1 << ", No Space Hex Representation: " << hexString << std::endl;
 
     std::string str2 = "Q0,P35.1234567 -120.789101112 103.789,R0";
     expected = "51 30 2C 50 33 35 2E 31 32 33 34 35 36 37 20 2D 31 32 30 2E 37 38 39 31 30 31 31 31 32 20 31 30 33 2E 37 38 39 2C 52 30";
@@ -166,17 +179,30 @@ int testHexString() {
     hexString = HexString(str2, false);
     assert(!strcmp(hexString.c_str(), expected.c_str()));
     std::cout << "\nTest Val: " << str2 << ", Big Endian No Space Hex Representation: " << hexString << std::endl;
-    std::cout << "All tests for HexString function passed" << std::endl;
+    std::cout << "All tests for HexString function passed\n" << std::endl;
     return 0;
 }
 
 int testByteSum() {
     // Test cases for ByteSum function
+    uint8_t expected;
+    int sum;
+    
+    // string
+    expected = 236;
+    sum = ByteSum("Quad A");
+    assert(expected == sum);
+    std::cout << "Test Val: " << "Quad A" << ", Byte Sum: " << sum << std::endl;
+    
+    expected = 19;
+    sum = ByteSum("Q0,P35.1234567 -120.789101112 103.789,R0");
+    assert(expected == sum);
+    std::cout << "Test Val: " << "Q0,P35.1234567 -120.789101112 103.789,R0"<< ", Byte Sum: " << sum << std::endl;
 
     // char array
     char charArr[] = "Quad A";
-    uint8_t expected = 236;
-    int sum = 0;
+    expected = 236;
+    sum = 0;
     sum = ByteSum(charArr);
     assert(expected == sum);
     std::cout << "Test Val: " << charArr << ", Byte Sum: " << sum << std::endl;
