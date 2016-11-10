@@ -3,7 +3,7 @@ TEST_DIR=$(CURDIR)/test
 LIB_DIR=$(CURDIR)/lib
 
 CXX=g++
-CXX_FLAGS=-std=c++11 -Wall -g
+CXX_FLAGS=-std=c++11 -Wall -Werror -g
 #LINK_FLAGS=
 
 all: Libxbee Test1
@@ -18,7 +18,7 @@ RecievePacket:
 	$(CXX) $(CXX_FLAGS) -fPIC -c $(LIB_DIR)/RecievePacket.cpp -o $(BUILD_DIR)/RecievePacket.o 
 
 Utility:
-	$(CXX) $(CXX_FLAGS) -fPIC -c $(LIB_DIR)/Utility.cpp -o $(BUILD_DIR)/Utility.o
+	$(CXX) $(CXX_FLAGS) -fPIC -c $(LIB_DIR)/Utility.cpp -o $(BUILD_DIR)/Utility.o -l$(LIB_DIR)
 
 Test1: 
 	$(CXX) $(CXX_FLAGS) $(TEST_DIR)/main.cpp -o $(BUILD_DIR)/Test1 -lboost_system -lboost_thread -L$(BUILD_DIR) -lxbee_plus
