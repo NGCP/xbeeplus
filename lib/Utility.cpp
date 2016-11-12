@@ -6,7 +6,7 @@
 
 namespace XBEE {
 
-    std::string HexString(char value[], bool is_spaced) {
+    inline std::string HexString(char value[], bool is_spaced,  bool end_space) {
         /* Function to convert a char array (c string) into a std::string of containing hex value octets
          * A hex octet is defined as a hex representation of 8 bits. Example FF, 00, 01, 9F, etc.
          * 
@@ -32,10 +32,11 @@ namespace XBEE {
             stream << str_buf;
             if (ndx != (len - 1) && is_spaced) stream << " "; // add white space if is_spaced set true
         }
+        if (end_space) stream << ' ';
         return stream.str();
     }
 
-    std::string HexString(const char value[], bool is_spaced) {
+    inline std::string HexString(const char value[], bool is_spaced,  bool end_space) {
         /* Function to convert a const char array (c string) into a std::string of containing hex value octets
          * A hex octet is defined as a hex representation of 8 bits. Example FF, 00, 01, 9F, etc.
          * 
@@ -63,10 +64,11 @@ namespace XBEE {
             stream << str_buf;
             if (ndx != (len - 1) && is_spaced) stream << " "; // add white space if is_spaced set true
         }
+        if (end_space) stream << ' ';
         return stream.str();
     }
 
-    std::string HexString(const std::string &value, bool is_spaced) {
+    inline std::string HexString(const std::string &value, bool is_spaced,  bool end_space) {
         /* Function to convert each character of a std::string (C++ string) into a std::string of containing hex value octets. This function will only
          * convert the string data within the std::string and ignore any associated metadata or methods
          * A hex octet is defined as a hex representation of 8 bits. Example FF, 00, 01, 9F, etc.
@@ -90,12 +92,11 @@ namespace XBEE {
             stream << str_buf;
             if (ndx != (len - 1) && is_spaced) stream << " "; // add white space if is_spaced set true
         }
+        if (end_space) stream << ' ';
         return stream.str();
     }
 
-    // template function must be in header
-
-    template <typename T> static std::string HexString(const T &value, bool is_spaced, bool little_endian) {
+    template <typename T> std::string HexString(const T &value, bool is_spaced,  bool end_space, bool little_endian) {
         /* Function to convert a generic data type to a std::string of containing hex value octets
          * A hex octet is defined as a hex representation of 8 bits. Example FF, 00, 01, 9F, etc.
          * 
@@ -127,11 +128,11 @@ namespace XBEE {
             stream << str_buf;
             if (ndx != (len - 1) && is_spaced) stream << " ";
         }
+        if (end_space) stream << ' ';
         return stream.str();
     };
-    
 
-    uint8_t ByteSum(char *item) {
+    inline uint8_t ByteSum(char *item) {
         /* Function to calculate the sum of bytes in a char*. The sum is stored into a uint8_t and sums greater than 256 are allowed to overflow
          * 
          * Inputs
@@ -151,7 +152,7 @@ namespace XBEE {
         return sum;
     }
 
-    uint8_t ByteSum(const char *item) {
+    inline uint8_t ByteSum(const char *item) {
         /* Function to calculate the sum of bytes in a const char*. The sum is stored into a uint8_t and sums greater than 256 are allowed to overflow
          * 
          * Inputs
@@ -173,7 +174,7 @@ namespace XBEE {
         return sum;
     }
 
-    uint8_t ByteSum(std::string& item) {
+    inline uint8_t ByteSum(std::string& item) {
         /* Function to calculate the sum of bytes in a std::string. The sum is stored into a uint8_t and sums greater than 256 are allowed to overflow
          * This function will only sum the bytes in the string data and will disregard any metadata or methods associated with the std::string
          * 
