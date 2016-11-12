@@ -1,7 +1,8 @@
 #include "../include/TransmitRequest.hpp"
+#include "../include/ReceivePacket.hpp"
 #include "../include/Xbee.hpp"
-#include "../include/Utility.hpp"
-#include "../lib/Utility.cpp"
+//#include "../include/Utility.hpp"
+//#include "../lib/Utility.cpp"
 
 #include <iostream>
 #include <thread>
@@ -33,7 +34,7 @@ void read_complete(const system::error_code &error, size_t bytes_transferred) {
         string data(bytes_transferred + 2, '\0');
         is.read(&data[0], bytes_transferred + 2);
 
-        cout << "Recieved Data: ";
+        cout << "Received Data: ";
         for (char &val : data) {
             cout << setfill('0') << setw(2) << hex << uppercase << static_cast<int> (val) << " ";
         }
@@ -42,7 +43,7 @@ void read_complete(const system::error_code &error, size_t bytes_transferred) {
     asio::async_read_until(port, buffer, 0x7E, boost::bind(&read_complete, _1, _2));
     //thread_is_running = false;
 }
-
+/*
 int testHexString() {
     // Test cases for HexString function
 
@@ -261,17 +262,19 @@ int testByteSum() {
     std::cout << "All tests for ByteSum function passed" << std::endl;
     return 0;
 }
-
+*/
 int main(int argc, char* argv[]) {
-    if (testHexString()) cout << "HexString test failed" << std::endl;
-    if (testByteSum()) cout << "ByteSum test failed" << std::endl;
+//    if (testHexString()) cout << "HexString test failed" << std::endl;
+//    if (testByteSum()) cout << "ByteSum test failed" << std::endl;
+    
+    ReceivePacket rPacket(0xFFFFFFFFFFFFFFFF, 0xFFFE);
 
     // Warning API level 1 (no escapes)
-    //    TransmitRequest t1(0x0013A20040F8064D);
-    //    t1.SetData("Hello QuadC!");
-    //	cout << "Enter TransmitRequest Payload: ";
-    //	cin >> t1;
-    //	cout << t1 << endl;
+        TransmitRequest t1(0x0013A20040F8064D);
+        t1.SetData("Hello QuadC!");
+    	cout << "Enter TransmitRequest Payload: ";
+    	cin >> t1;
+    	cout << t1 << endl;
 
     //
     //	port.open("/dev/ttyUSB0");
