@@ -37,7 +37,6 @@ namespace XBEE {
 
   void ReceivePacket::SetLength() {
     length = sizeof (frame_type)
-            + sizeof (frame_id)
             + sizeof (source_mac_64)
             + sizeof (source_mac_16)
             + sizeof (options);
@@ -50,10 +49,34 @@ namespace XBEE {
     return 0;
   }
 
+  std::string ReceivePacket::ToHexString(HexFormat spacing) const{
+     std::stringstream tmp;
+     bool even_space = false;
+     std::string space = "";
+     switch(spacing) {
+      case HexFormat::BYTE_SPACING:
+        even_space = true;
+      case HexFormat::DATA_SPACING:
+        space = ' ';
+      case HexFormat::NO_SPACING:
+        tmp << HexString(start, even_space) << space;
+        tmp << HexString(length, even_space) << space;
+        tmp << HexString(frame_type, even_space) << space;
+        tmp << HexString(source_mac_64, even_space) << space;
+        tmp << HexString(source_mac_16, even_space) << space;
+        tmp << HexString(options, even_space) << space;
+        for (auto itr = data.begin(); itr != data.end(); ++itr)
+          if (*itr != 0x00)
+            tmp << HexString(*itr, even_space) << space;
+        tmp << HexString(checksum, even_space) << space;
+        break;
+     }
+     return tmp.str();
+  }
+
   void ReceivePacket::SetChecksum() {
-    
+
     uint8_t byte_sum = ByteSum(frame_type);
-    byte_sum += ByteSum(frame_id);
     byte_sum += ByteSum(source_mac_64);
     byte_sum += ByteSum(source_mac_16);
     byte_sum += options;

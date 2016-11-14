@@ -3,25 +3,23 @@
 #ifndef RECIEVE_PACKET_HPP
 #define RECIEVE_PACKET_HPP
 
+#include "Xbee.hpp"
 #include "Frame.hpp"
-
-#include <string>
-#include <array>
+#include "SerialXbee.hpp"
 
 namespace XBEE {
   // Allow API mode 2 with escape characters
-
   class ReceivePacket : public Frame {
+  friend class SerialXbee;
   public:
     ReceivePacket();
     ReceivePacket(uint64_t source_64);
     ReceivePacket(uint64_t source_64, uint16_t source_16);
+    // TODO Eventually use enums for options
 
     std::string GetData();
 
   protected:
-    // Used to enable xbee firmware check message on successful send (for values above 0) -- Not implemented
-    uint8_t frame_id = 0x00;
     uint64_t source_mac_64;
     uint16_t source_mac_16;
     // Used to set packet options (not yet implemented)
@@ -34,7 +32,7 @@ namespace XBEE {
     void SetChecksum();
     void SetChecksum_old();
     void SetData();
-    std::string HexString(bool equal_space = false) const;
+    std::string ToHexString(HexFormat spacing) const;
   };
 }
 #endif

@@ -34,29 +34,57 @@ namespace XBEE {
     TransmitRequest::SetChecksum();
   }
 
-  std::string TransmitRequest::ToHexString(Hex_string_format data_format) const {
+  std::string TransmitRequest::ToHexString(HexFormat spacing) const {
 
     std::stringstream tmp;
-    bool is_spaced;
-    bool even_spacing = data_format != DATA_SPACE ? true : false;
+    /*
+      Example of good minimal switch case implementation:
+      This is called case fall-through, which is desirable for minimal code
+      Rule of thumb, if your using a switch-case, you shouldn't have if statements
+      bool even_space = false;
+      bool data_space = false;
+      switch (spacing) {
+        case HexFormat::BYTE_SPACING:
+          even_space = true;
+        case HexFormat::DATA_SPACING:
+          data_space = true;
+        case HexFormat::NO_SPACING:
+          tmp << HexString(start, even_space, data_space);
+          tmp << HexString(length, even_space, data_space);
+          tmp << HexString(frame_type, even_space, data_space);
+          tmp << HexString(frame_id, even_space, data_space);
+          tmp << HexString(target_mac_64, even_space, data_space);
+          tmp << HexString(target_mac_16, even_space, data_space);
+          tmp << HexString(broadcast_radius, even_space, data_space);
+          tmp << HexString(options, even_space, data_space);
+          for (auto itr = data.begin(); itr != data.end(); ++itr)
+            if (*itr != 0x00)
+              tmp << HexString(*itr, even_space, data_space);
+          tmp << HexString(checksum, even_space, data_space);
+      }
+      TODO: Bonus points, for implementing the above while also getting rid of your HexString's third argument
+            The third argument is extraneous and unnecessary. Above design can be implemented without it as well.
+            This will remove code complexity from your HexString function as well.
+            Less Code == Better in C++
+    */
 
-    switch (even_spacing) {
-      case true: // even spacisng
-        is_spaced = data_format == BYTE_SPACE ? true : false;
-        tmp << HexString(start, is_spaced, is_spaced);
-        tmp << HexString(length, is_spaced, is_spaced);
-        tmp << HexString(frame_type, is_spaced, is_spaced);
-        tmp << HexString(frame_id, is_spaced, is_spaced);
-        tmp << HexString(target_mac_64, is_spaced, is_spaced);
-        tmp << HexString(target_mac_16, is_spaced, is_spaced);
-        tmp << HexString(broadcast_radius, is_spaced, is_spaced);
-        tmp << HexString(options, is_spaced, is_spaced);
-
-        for (auto itr = data.begin(); itr != data.end(); ++itr) if (*itr != 0x00) tmp << HexString(*itr, is_spaced, is_spaced);
-        tmp << HexString(checksum, is_spaced);
+    // TODO: Re-factor this messy stuff (Looking at you Frank)
+    switch (spacing) {
+      case HexFormat::NO_SPACING:
+        tmp << HexString(start, false, false);
+        tmp << HexString(length, false, false);
+        tmp << HexString(frame_type, false, false);
+        tmp << HexString(frame_id, false, false);
+        tmp << HexString(target_mac_64, false, false);
+        tmp << HexString(target_mac_16, false, false);
+        tmp << HexString(broadcast_radius, false, false);
+        tmp << HexString(options, false, false);
+        for (auto itr = data.begin(); itr != data.end(); ++itr)
+          if (*itr != 0x00)
+            tmp << HexString(*itr, false, false);
+        tmp << HexString(checksum, false, false);
         break;
-
-      case false: // not even spacing
+      case HexFormat::DATA_SPACING:
         tmp << HexString(start, false, true);
         tmp << HexString(length, false, true);
         tmp << HexString(frame_type, false, true);
@@ -64,21 +92,28 @@ namespace XBEE {
         tmp << HexString(target_mac_64, false, true);
         tmp << HexString(target_mac_16, false, true);
         tmp << HexString(broadcast_radius, false, true);
-
-        // TODO: Does the bug still exist?
         tmp << HexString(options, false, true);
-
-        // TODO: Should there be a space between each data member?
-        for (auto itr = data.begin(); itr != data.end(); ++itr) if (*itr != 0x00) tmp << HexString(*itr, false, false);
-        tmp << ' ' << HexString(checksum, false);
+        for (auto itr = data.begin(); itr != data.end(); ++itr)
+          if (*itr != 0x00)
+            tmp << HexString(*itr, false, true);
+        tmp << HexString(checksum, false, true);
         break;
-
-      default:
-        // TODO: Will this do what I think it does?
-        static_assert(true, "Invalid data_format parameter to TransmitRequest HexString method");
+      case HexFormat::BYTE_SPACING:
+        tmp << HexString(start, true, true);
+        tmp << HexString(length, true, true);
+        tmp << HexString(frame_type, true, true);
+        tmp << HexString(frame_id, true, true);
+        tmp << HexString(target_mac_64, true, true);
+        tmp << HexString(target_mac_16, true, true);
+        tmp << HexString(broadcast_radius, true, true);
+        tmp << HexString(options, true, true);
+        for (auto itr = data.begin(); itr != data.end(); ++itr)
+          if (*itr != 0x00)
+            tmp << HexString(*itr, true, true);
+        tmp << HexString(checksum, true, true);
         break;
     }
-        return tmp.str();
+    return tmp.str();
   }
 
   void TransmitRequest::SetData(const std::string &message) {

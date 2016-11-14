@@ -3,13 +3,12 @@
 #ifndef FRAME_HPP
 #define FRAME_HPP
 
-//#include <stdint>
 #include "Xbee.hpp"
 
 namespace XBEE {
 	class Frame {
 	public:
-		
+		virtual std::string ToHexString(HexFormat spacing) const = 0;
 	protected:
 		const uint8_t start	= 0x7E;
 		uint16_t length;
