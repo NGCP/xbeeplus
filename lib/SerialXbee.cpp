@@ -21,9 +21,7 @@ namespace XBEE {
 	}
 
 	// TODO: Clean up and optimize this messy code when time permits
-	// TODO: [CRITICAL BUG] 1st packet does not get successfully parsed!!!
 	// TODO: Implement checksum checking
-	// TODO: Fix std::cout buffer flushing
 	void SerialXbee::ParseFrame(const boost::system::error_code &error, size_t num_bytes) {
 		// std::cout << "FOUND A FRAME TO PARSE!" << std::endl;
 		using namespace boost::asio;
