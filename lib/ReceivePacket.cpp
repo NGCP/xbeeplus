@@ -46,32 +46,69 @@ namespace XBEE {
   }
 
   std::string ReceivePacket::GetData() {
-    return 0;
+
+    // TODO: Test
+    std::stringstream data_str;
+    for (auto itr = data.begin(); itr != data.end(); ++itr)
+      if (*itr != 0x00)
+        data_str << HexString(*itr, false);
+    return data_str.str();
   }
 
-  std::string ReceivePacket::ToHexString(HexFormat spacing) const{
-     std::stringstream tmp;
-     bool even_space = false;
-     std::string space = "";
-     switch(spacing) {
-      case HexFormat::BYTE_SPACING:
-        even_space = true;
-      case HexFormat::DATA_SPACING:
-        space = ' ';
-      case HexFormat::NO_SPACING:
-        tmp << HexString(start, even_space) << space;
-        tmp << HexString(length, even_space) << space;
-        tmp << HexString(frame_type, even_space) << space;
-        tmp << HexString(source_mac_64, even_space) << space;
-        tmp << HexString(source_mac_16, even_space) << space;
-        tmp << HexString(options, even_space) << space;
-        for (auto itr = data.begin(); itr != data.end(); ++itr)
-          if (*itr != 0x00)
-            tmp << HexString(*itr, even_space) << space;
-        tmp << HexString(checksum, even_space) << space;
-        break;
-     }
-     return tmp.str();
+  std::string ReceivePacket::ToHexString(HexFormat spacing) const {
+    
+        std::stringstream tmp;
+    // TODO: Implement HexString function without third argument
+      bool even_space = false;
+      bool data_space = false;
+      switch (spacing) {
+        case HexFormat::BYTE_SPACING:
+          even_space = true;
+        case HexFormat::DATA_SPACING:
+          data_space = true;
+        case HexFormat::NO_SPACING:
+          tmp << HexString(start, even_space, data_space);
+          tmp << HexString(length, even_space, data_space);
+          tmp << HexString(frame_type, even_space, data_space);
+          tmp << HexString(source_mac_64, even_space, data_space);
+          tmp << HexString(source_mac_16, even_space, data_space);
+          tmp << HexString(options, even_space, data_space);
+          for (auto itr = data.begin(); itr != data.end(); ++itr)
+            if (*itr != 0x00)
+              tmp << HexString(*itr, even_space, even_space);
+          
+          // TODO: Figure out how to avoid if statement
+          // checksum wont be spaced for DATA_SPACING case
+          // if a ' ' is thrown in, checksum wont be not spaced for NO_SPACING case
+          if (spacing == HexFormat::DATA_SPACING) tmp << ' ';
+          tmp << HexString(checksum, even_space, false);
+      }
+      return tmp.str();
+    
+//    std::stringstream tmp;
+//    bool even_space = false;
+//    std::string space = "";
+//    switch (spacing) {
+//      case HexFormat::BYTE_SPACING:
+//        even_space = true;
+//      case HexFormat::DATA_SPACING:
+//        space = ' ';
+//      case HexFormat::NO_SPACING:
+//        tmp << HexString(start, even_space) << space;
+//        tmp << HexString(length, even_space) << space;
+//        tmp << HexString(frame_type, even_space) << space;
+//        tmp << HexString(source_mac_64, even_space) << space;
+//        tmp << HexString(source_mac_16, even_space) << space;
+//        tmp << HexString(options, even_space) << space;
+//        for (auto itr = data.begin(); itr != data.end(); ++itr)
+//          if (*itr != 0x00)
+      
+      // this loop will not work as intended for DATA_SPACING because the data array is iterated per char
+//            tmp << HexString(*itr, even_space) << space;
+//        tmp << HexString(checksum, even_space) << space;
+//        break;
+//    }
+//    return tmp.str();
   }
 
   void ReceivePacket::SetChecksum() {
