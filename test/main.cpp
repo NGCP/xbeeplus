@@ -246,7 +246,7 @@ int main(int argc, char* argv[]) {
     cout << t1 << endl;
     
 //    ReceivePacket r1(0x0013A20040F8063C);
-    
+    std::cout << std::dec << i++ << " seconds have passed" << std::endl;
     // B MAC address:  0x0013A20040F8063C
     // C MAC address: 
 

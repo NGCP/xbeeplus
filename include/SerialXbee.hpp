@@ -3,6 +3,8 @@
 #ifndef SERIALXBEE_HPP
 #define SERIALXBEE_HPP
 
+#include <functional>
+
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/system/system_error.hpp>
@@ -19,6 +21,7 @@
 	static const std::string kDefaultPath = "/dev/ttyUSB0";
 #endif
 
+// TODO: Frank needs to add a callback function to his GCS interface
 namespace XBEE {
 	class SerialXbee : boost::noncopyable {
 	private:
@@ -30,6 +33,7 @@ namespace XBEE {
 		void ParseFrame(const boost::system::error_code &error, size_t num_bytes);
 
 	public:
+		std::function<void(Frame *)> ReadHandler;
 		SerialXbee();
 		// TODO: Add a blocking (synchronous) read function
 		void AsyncReadFrame();
