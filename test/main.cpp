@@ -243,7 +243,7 @@ int main(int argc, char* argv[]) {
     int i = 0;
 
     while(true) {
-    std::cout << i++ << " seconds have passed" << std::endl;
+    std::cout << std::dec << i++ << " seconds have passed" << std::endl;
     sleep(1);
   }
 }

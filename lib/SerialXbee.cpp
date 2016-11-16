@@ -11,6 +11,7 @@ namespace XBEE {
 	// TODO: Figure out why the below won't work for some dumb reason
 	SerialXbee::SerialXbee() : m_io(), m_port(m_io) {
 		Connect(kDefaultPath);
+		ReadHandler = std::bind(&SerialXbee::PrintFrame, this, std::placeholders::_1);
 	}
 
 	void SerialXbee::Connect(std::string device_path, uint32_t baud_rate) {
@@ -19,72 +20,97 @@ namespace XBEE {
 		runner = boost::thread(boost::bind(&boost::asio::io_service::run, &m_io));
 	}
 
-	// TODO: Fix up this function so it actually parses the frame correctly
+	// TODO: Clean up and optimize this messy code when time permits
+	// TODO: [CRITICAL BUG] 1st packet does not get successfully parsed!!!
+	// TODO: Implement checksum checking
+	// TODO: Fix std::cout buffer flushing
 	void SerialXbee::ParseFrame(const boost::system::error_code &error, size_t num_bytes) {
-		std::cout << "FOUND A FRAME TO PARSE!" << std::endl;
+		// std::cout << "FOUND A FRAME TO PARSE!" << std::endl;
 		using namespace boost::asio;
 
-		//uint16_t frame_length;
-		//uint8_t frame_type;
-		std::string placeholder;
+		char holder[8];
+
+		uint16_t frame_length;
+		uint8_t frame_type;
 		Frame *cur_frame = NULL;
 
 		if (error) {
+			std::cout << "[ERROR] FOUND" << std::endl;
 			// throw an error, by repeating system error code
 		}
 		if (num_bytes != 2) {
+			std::cout << "[ERROR] NOT ENOUGH BYTES" << std::endl;
 			// throw an error, saying that there was other things read besides the frame delimiter
 		}
-
 		// Clears buffer (Should only contain 0x7E delimiter, which is added automatically when new Frame object is created)
 		buffer.consume(num_bytes);
 		// Synchronously read the next 2 bytes of Frame (Frame Length)
 		read(m_port, buffer, transfer_exactly(2));
 		std::istream temp(&buffer);
-		//temp >> placeholder;
-		std::cout << HexString(placeholder, true) << std::endl;
-		read(m_port, buffer, transfer_exactly(3));
-		//temp.rdbuf(&buffer);
-		temp >> placeholder;
-		std::cout << HexString(placeholder, true) << std::endl;
-		/*temp.get((char*)&frame_length, 2);
-		frame_type = temp.get();
-		std::cout << "Frame Length: " << frame_length << std::endl;*/
-		// Fill up buffer with the rest of packet data
-		//read(m_port, buffer, transfer_exactly(frame_length - 1));
-		// TODO: Find out if this is necessary?
-		//temp.rdbuf(&buffer);
-
-		std::cout << "READ FRAME HEADER" << std::endl;
+		temp.get(holder[0]);
+		temp.get(holder[1]);
+		frame_length = (holder[0] << 8) + holder[1];
+		read(m_port, buffer, transfer_exactly(1));
+		temp.get(holder[0]);
+		frame_type = holder[0];
+		// std::cout << std::hex << std::uppercase << std::setfill('0') <<  std::setw(4) << static_cast<int>(frame_length) << std::endl;
+		// std::cout << std::hex << std::uppercase << std::setfill('0') <<  std::setw(2) << static_cast<int>(frame_type) << std::endl;
 
 		// Construct Frame object
-		/*switch(FrameType(frame_type)) {
+		switch(FrameType(frame_type)) {
 			case FrameType::RECEIVE_PACKET:
 			{
 				ReceivePacket frame;
-				temp.get((char*)&(frame.source_mac_64), 8);
-				temp.get((char*)&(frame.source_mac_16), 2);
-				temp.get((char*)&(frame.options), 1);
+				// Read rest of frame data
+				read(m_port, buffer, transfer_exactly(frame_length - 1));
+				// Mac 64
+				for (int i = 0; i < 8; i++) {
+					temp.get(holder[i]);
+					//std::cout << std::hex << std::uppercase << std::setfill('0') << std::setw(8) << static_cast<uint64_t>(holder[i]) << std::endl;
+				}
+				frame.source_mac_64 = (static_cast<uint64_t>(holder[0] & 0xFF) << 56);
+				frame.source_mac_64 += (static_cast<uint64_t>(holder[1] & 0xFF) << 48);
+				frame.source_mac_64 += (static_cast<uint64_t>(holder[2] & 0xFF) << 40);
+				frame.source_mac_64 += (static_cast<uint64_t>(holder[3] & 0xFF) << 32);
+				frame.source_mac_64 += (static_cast<uint64_t>(holder[4] & 0xFF) << 24);
+				frame.source_mac_64 += (static_cast<uint64_t>(holder[5] & 0xFF) << 16);
+				frame.source_mac_64 += (static_cast<uint64_t>(holder[6] & 0xFF) << 8);
+				frame.source_mac_64 += static_cast<uint64_t>(holder[7]) & 0xFF;
+				//std::cout << std::hex << std::uppercase << std::setfill('0') <<  std::setw(8) << frame.source_mac_64 << std::endl;
+				// Mac 16
+				temp.get(holder[0]);
+				temp.get(holder[1]);
+				frame.source_mac_16 = (static_cast<uint64_t>(holder[0] & 0xFF) << 8);
+				frame.source_mac_16 += static_cast<uint64_t>(holder[1]) & 0xFF;
+				//std::cout << std::hex << std::uppercase << std::setfill('0') <<  std::setw(4) << frame.source_mac_16 << std::endl;
+				// Recieve Options
+				temp.get(holder[0]);
+				frame.options = holder[0];
 				// Store into RecievePacket's data field
-				for (auto itr = (frame.data).begin(); itr != (frame.data).end(); ++itr) {
-					temp.get((char*)itr, 1);
+				uint8_t piece;
+				for (int i = 0; i < frame_length - 12; i++) {
+					temp.get(holder[0]);
+					piece = holder[0];
+					frame.data.at(i) = piece;
 				}
 				frame.length = frame_length;
-				temp.get((char*)&(frame.checksum), 1);
+				temp.get(holder[0]);
+				piece = holder[0];
+				std::cout << "Checksum is: " << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << static_cast<int>(piece) << std::endl;
+				frame.checksum = piece;
 				cur_frame = &frame;
 				break;
 			}
 			default:
 				// Throw unable to parse frame error
 				break;
-		}*/
+		}
 		// TODO: Add support for user callback function with Frame pointer type
-		PrintFrame(cur_frame);
+		ReadHandler(cur_frame);
 		AsyncReadFrame();
 	}
 
 	void SerialXbee::PrintFrame(Frame *a_frame) {
-		std::cout << "ENTERED PRINT FRAME FUNCTION" << std::endl;
 		std::cout << a_frame->ToHexString(HexFormat::BYTE_SPACING) << std::endl;
 	}
 
