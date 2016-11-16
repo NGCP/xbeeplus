@@ -11,6 +11,8 @@
 #include "../include/SerialXbee.hpp"
 #include "../include/Xbee.hpp"
 
+#include "../include/TransmitRequest.hpp"
+
 using namespace XBEE;
 using namespace std;
 
@@ -236,14 +238,25 @@ int TestByteSum() {
 int main(int argc, char* argv[]) {
     if (TestHexString()) cout << "HexString test failed" << std::endl;
     if (TestByteSum()) cout << "ByteSum test failed" << std::endl;
+    
+    // TODO: Write a Test function for ToHexString, Only print out if test fails
+    TransmitRequest t1(0x0013A20040F8063C);
+    cout << "Enter Transmit Request:" << std:: endl;
+    cin >> t1;
+    cout << t1 << endl;
+    
+//    ReceivePacket r1(0x0013A20040F8063C);
+    
+    // B MAC address:  0x0013A20040F8063C
+    // C MAC address: 
 
-    // Warning API level 1 (no escapes)
-    XBEE::SerialXbee test;
-    test.AsyncReadFrame();
-    int i = 0;
-
-    while(true) {
-    std::cout << i++ << " seconds have passed" << std::endl;
-    sleep(1);
-  }
+//    // Warning API level 1 (no escapes)
+//    XBEE::SerialXbee test;
+//    test.AsyncReadFrame();
+//    int i = 0;
+//
+//    while(true) {
+//    std::cout << i++ << " seconds have passed" << std::endl;
+//    sleep(1);
+//  }
 }

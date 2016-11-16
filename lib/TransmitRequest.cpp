@@ -35,12 +35,9 @@ namespace XBEE {
   }
 
   std::string TransmitRequest::ToHexString(HexFormat spacing) const {
-
+    
     std::stringstream tmp;
-    /*
-      Example of good minimal switch case implementation:
-      This is called case fall-through, which is desirable for minimal code
-      Rule of thumb, if your using a switch-case, you shouldn't have if statements
+    // TODO: Implement HexString function without third argument
       bool even_space = false;
       bool data_space = false;
       switch (spacing) {
@@ -59,61 +56,15 @@ namespace XBEE {
           tmp << HexString(options, even_space, data_space);
           for (auto itr = data.begin(); itr != data.end(); ++itr)
             if (*itr != 0x00)
-              tmp << HexString(*itr, even_space, data_space);
-          tmp << HexString(checksum, even_space, data_space);
+              tmp << HexString(*itr, even_space, even_space);
+          
+          // TODO: Figure out how to avoid if statement
+          // checksum wont be spaced for DATA_SPACING case
+          // if a ' ' is thrown in, checksum wont be not spaced for NO_SPACING case
+          if (spacing == HexFormat::DATA_SPACING) tmp << ' ';
+          tmp << HexString(checksum, even_space, false);
       }
-      TODO: Bonus points, for implementing the above while also getting rid of your HexString's third argument
-            The third argument is extraneous and unnecessary. Above design can be implemented without it as well.
-            This will remove code complexity from your HexString function as well.
-            Less Code == Better in C++
-    */
-
-    // TODO: Re-factor this messy stuff (Looking at you Frank)
-    switch (spacing) {
-      case HexFormat::NO_SPACING:
-        tmp << HexString(start, false, false);
-        tmp << HexString(length, false, false);
-        tmp << HexString(frame_type, false, false);
-        tmp << HexString(frame_id, false, false);
-        tmp << HexString(target_mac_64, false, false);
-        tmp << HexString(target_mac_16, false, false);
-        tmp << HexString(broadcast_radius, false, false);
-        tmp << HexString(options, false, false);
-        for (auto itr = data.begin(); itr != data.end(); ++itr)
-          if (*itr != 0x00)
-            tmp << HexString(*itr, false, false);
-        tmp << HexString(checksum, false, false);
-        break;
-      case HexFormat::DATA_SPACING:
-        tmp << HexString(start, false, true);
-        tmp << HexString(length, false, true);
-        tmp << HexString(frame_type, false, true);
-        tmp << HexString(frame_id, false, true);
-        tmp << HexString(target_mac_64, false, true);
-        tmp << HexString(target_mac_16, false, true);
-        tmp << HexString(broadcast_radius, false, true);
-        tmp << HexString(options, false, true);
-        for (auto itr = data.begin(); itr != data.end(); ++itr)
-          if (*itr != 0x00)
-            tmp << HexString(*itr, false, true);
-        tmp << HexString(checksum, false, true);
-        break;
-      case HexFormat::BYTE_SPACING:
-        tmp << HexString(start, true, true);
-        tmp << HexString(length, true, true);
-        tmp << HexString(frame_type, true, true);
-        tmp << HexString(frame_id, true, true);
-        tmp << HexString(target_mac_64, true, true);
-        tmp << HexString(target_mac_16, true, true);
-        tmp << HexString(broadcast_radius, true, true);
-        tmp << HexString(options, true, true);
-        for (auto itr = data.begin(); itr != data.end(); ++itr)
-          if (*itr != 0x00)
-            tmp << HexString(*itr, true, true);
-        tmp << HexString(checksum, true, true);
-        break;
-    }
-    return tmp.str();
+      return tmp.str();
   }
 
   void TransmitRequest::SetData(const std::string &message) {
