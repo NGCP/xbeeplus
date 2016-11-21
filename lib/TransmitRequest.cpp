@@ -35,7 +35,6 @@ namespace XBEE {
   }
 
   std::string TransmitRequest::ToHexString(HexFormat spacing) const {
-    
     std::stringstream tmp;
     // TODO: Implement HexString function without third argument
       bool even_space = false;
@@ -65,6 +64,26 @@ namespace XBEE {
           tmp << HexString(checksum, even_space, false);
       }
       return tmp.str();
+  }
+
+  std::vector<uint8_t> TransmitRequest::SerializeFrame() const {
+    std::vector<uint8_t> temp;
+    temp.push_back(start);
+    std::vector<uint8_t> t1 = HexData(length);
+    temp.insert(temp.end(), t1.begin(), t1.end());
+    temp.push_back(frame_type);
+    temp.push_back(frame_id);
+    t1 = HexData(target_mac_64);
+    temp.insert(temp.end(), t1.begin(), t1.end());
+    t1 = HexData(target_mac_16);
+    temp.insert(temp.end(), t1.begin(), t1.end());
+    temp.push_back(broadcast_radius);
+    temp.push_back(options);
+    auto itr = data.begin();
+    while(*itr != 0x00)
+      temp.push_back(*itr++);
+    temp.push_back(checksum);
+    return temp;
   }
 
   void TransmitRequest::SetData(const std::string &message) {

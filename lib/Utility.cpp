@@ -1,5 +1,6 @@
 #include <sstream>
 #include <array>
+#include <algorithm>
 
 #include "../include/Xbee.hpp"
 #include "../include/Utility.hpp"
@@ -217,9 +218,20 @@ namespace XBEE {
         uint8_t sum(0);
         uint8_t *dat = (uint8_t*) & item;
 
-        for (ndx = 0; ndx < len; ndx++) sum += dat[ndx];
+        for (ndx = 0; ndx < len; ndx++)
+            sum += dat[ndx];
 
         return sum;
+    }
+
+    template<typename T> std::vector<uint8_t> HexData(T &item) {
+        static_assert(!std::is_class<T>::value, "HexData cannot evaluate classes or structs");
+        std::vector<uint8_t> temp;
+        uint8_t *data = (uint8_t *) &item;
+        for (size_t count = 0; count < sizeof(item); count++)
+            temp.push_back(data[count]);
+        std::reverse(temp.begin(), temp.end());
+        return temp;
     }
 
 }

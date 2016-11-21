@@ -18,6 +18,8 @@ namespace XBEE {
     // TODO Eventually use enums for options
 
     std::string GetData();
+    std::string ToHexString(HexFormat spacing = HexFormat::NO_SPACING) const;
+    std::vector<uint8_t>SerializeFrame() const;
 
   protected:
     uint64_t source_mac_64;

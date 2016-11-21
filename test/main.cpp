@@ -9,6 +9,7 @@
 #include "../include/Utility.hpp"
 #include "../lib/Utility.cpp"
 #include "../include/SerialXbee.hpp"
+#include "../include/TransmitRequest.hpp"
 #include "../include/Xbee.hpp"
 
 #include "../include/TransmitRequest.hpp"
@@ -241,11 +242,16 @@ int main(int argc, char* argv[]) {
 
     // Warning API level 1 (no escapes)
     XBEE::SerialXbee test;
-    test.AsyncReadFrame();
+    XBEE::TransmitRequest frame_0(0x0013A20040A815D6);
+    frame_0.SetData("Hello QuadD!");
+    //test.AsyncReadFrame();
     int i = 0;
 
     while(true) {
     std::cout << std::dec << i++ << " seconds have passed" << std::endl;
+    if (i == 5 || i == 6) {
+        test.AsyncWriteFrame(&frame_0);
+    }
     sleep(1);
 }
 }

@@ -30,17 +30,23 @@ namespace XBEE {
 		boost::asio::serial_port m_port;
 		boost::thread runner;
 
+		// Parses the incoming data into appropriate Frames
 		void ParseFrame(const boost::system::error_code &error, size_t num_bytes);
+		// Handles Errors and executes callback for AsyncWriteFrame
+		void FrameWritten(const boost::system::error_code &error, size_t num_bytes, Frame *a_frame);
+		// Used as the default call back function for reads/writes, if none are specified
+		void PrintFrame(Frame *a_frame);
 
 	public:
 		std::function<void(Frame *)> ReadHandler;
+		std::function<void(Frame *)> WriteHandler;
 		SerialXbee();
 		// TODO: Add a blocking (synchronous) read function
 		void AsyncReadFrame();
+		// TODO: Add a blocking (synchronous) write function
+		void AsyncWriteFrame(Frame *a_frame);
 		// TODO: Add support for port options, data bit size, parity etc...
 		void Connect(std::string device_path, uint32_t baud_rate = 57600);
-		// Used as the default call back function, if none are specified
-		void PrintFrame(Frame *a_frame);
 	};
 }
 #endif

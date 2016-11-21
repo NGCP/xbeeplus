@@ -4,11 +4,14 @@
 #define FRAME_HPP
 
 #include "Xbee.hpp"
+#include <vector>
 
 namespace XBEE {
 	class Frame {
 	public:
 		virtual std::string ToHexString(HexFormat spacing) const = 0;
+		virtual std::vector<uint8_t> SerializeFrame() const = 0;
+
 	protected:
 		const uint8_t start	= 0x7E;
 		uint16_t length;

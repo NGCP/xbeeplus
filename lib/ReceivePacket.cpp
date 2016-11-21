@@ -45,14 +45,30 @@ namespace XBEE {
     }
   }
 
+  // TODO: Possible bug that actual 0x00 character will not be successfully returned
   std::string ReceivePacket::GetData() {
+    auto itr = data.begin();
+    std::string temp = "";
+    while(*itr != 0x00) {
+      temp += static_cast<char>(*itr);
+    }
+    return temp;
+  }
 
-    // TODO: Test
-    std::stringstream data_str;
-    for (auto itr = data.begin(); itr != data.end(); ++itr)
-      if (*itr != 0x00)
-        data_str << HexString(*itr, false);
-    return data_str.str();
+  // TODO: Make a generic function that returns a vector of uint8_t
+  std::vector<uint8_t> ReceivePacket::SerializeFrame() const {
+    std::vector<uint8_t> temp;
+    temp.push_back(start);
+    temp.insert(temp.end(), HexData(length).begin(), HexData(length).end());
+    temp.push_back(frame_type);
+    temp.insert(temp.end(), HexData(source_mac_64).begin(), HexData(source_mac_64).end());
+    temp.insert(temp.end(), HexData(source_mac_16).begin(), HexData(source_mac_16).end());
+    temp.push_back(options);
+    auto itr = data.begin();
+    while(*itr != 0x00)
+      temp.push_back(*itr++);
+    temp.push_back(checksum);
+    return temp;
   }
 
   std::string ReceivePacket::ToHexString(HexFormat spacing) const {

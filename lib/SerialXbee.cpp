@@ -12,6 +12,7 @@ namespace XBEE {
 	SerialXbee::SerialXbee() : m_io(), m_port(m_io) {
 		Connect(kDefaultPath);
 		ReadHandler = std::bind(&SerialXbee::PrintFrame, this, std::placeholders::_1);
+		WriteHandler = std::bind(&SerialXbee::PrintFrame, this, std::placeholders::_1);
 	}
 
 	void SerialXbee::Connect(std::string device_path, uint32_t baud_rate) {
@@ -36,10 +37,9 @@ namespace XBEE {
 			std::cout << "[ERROR] FOUND" << std::endl;
 			// throw an error, by repeating system error code
 		}
-		if (num_bytes != 2) {
+		/*if (num_bytes != 2) {
 			std::cout << "[ERROR] NOT ENOUGH BYTES" << std::endl;
-			// throw an error, saying that there was other things read besides the frame delimiter
-		}
+		}*/
 		// Clears buffer (Should only contain 0x7E delimiter, which is added automatically when new Frame object is created)
 		buffer.consume(num_bytes);
 		// Synchronously read the next 2 bytes of Frame (Frame Length)
@@ -94,7 +94,7 @@ namespace XBEE {
 				frame.length = frame_length;
 				temp.get(holder[0]);
 				piece = holder[0];
-				std::cout << "Checksum is: " << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << static_cast<int>(piece) << std::endl;
+				//std::cout << "Checksum is: " << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << static_cast<int>(piece) << std::endl;
 				frame.checksum = piece;
 				cur_frame = &frame;
 				break;
@@ -104,8 +104,21 @@ namespace XBEE {
 				break;
 		}
 		// TODO: Add support for user callback function with Frame pointer type
+		//std::cout << "We are calling ReadHandler" << std::endl;
 		ReadHandler(cur_frame);
 		AsyncReadFrame();
+	}
+
+	void SerialXbee::FrameWritten(const boost::system::error_code &error, size_t num_bytes, Frame *a_frame) {
+		using namespace boost::asio;
+
+		std::cout << "Entered FrameWritten Function" << std::endl;
+
+		if (error) {
+			std::cout << "[ERROR] FOUND" << std::endl;
+		}
+
+		WriteHandler(a_frame);
 	}
 
 	void SerialXbee::PrintFrame(Frame *a_frame) {
@@ -116,54 +129,22 @@ namespace XBEE {
 		boost::asio::async_read_until(m_port, buffer, 0x7E, boost::bind(&SerialXbee::ParseFrame, this, _1, _2));
 	}
 
-	/*void SerialXbee::PrintFrame(const boost::system::error_code &e, std::size_t size) {
-		std::cout << "PrintFrame function was entered!" << std::endl;
-		using namespace boost::asio;
-		// Throw exception later
-		if (e || size <= 0) {
-			std::cout << "Nothing was read" << std::endl;
+	void SerialXbee::AsyncWriteFrame(Frame *a_frame) {
+		std::cout << "Entered WriteFrame Function" << std::endl;
+
+		std::vector<uint8_t> temp = a_frame->SerializeFrame();
+
+		/*std::cout << "Contents of vector is: " << std::endl;
+		for (auto itr = temp.begin(); itr != temp.end(); ++itr) {
+			std::cout << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << static_cast<int>(*itr) << " "; 
 		}
-		// Get rid of else after exception is added above
-		else {
-			// Figure out a better way to handle all the read calls error codes...
-			// Possible bug: I don't check the second error code
-			read(io_port, buffer, transfer_exactly(3));
-			std::istream input_temp(&buffer);
-			// Throw away delimiter
-			input_temp.get();
-			// Read in Frame Length
-			uint16_t frame_length;
-			input_temp.get((char*)&frame_length, 2);
-			// Read in Frame Type
-			uint8_t frame_type = input_temp.get();
-			// Gather the rest of the data based on frame type
-			// Add this to a function for modularity later
-			switch(frame_type) {
-				case (uint8_t) FrameType::RECIEVE_PACKET:
-				{
-					read(io_port, buffer, transfer_exactly(frame_length - 1));
-					// This maybe works?
-					input_temp.rdbuf(&buffer);
-					// Get 64 bit mac address
-					uint64_t mac_64;
-					input_temp.get((char*)&mac_64, 8);
-					// Get 16 bit mac address
-					uint16_t mac_16;
-					input_temp.get((char*)&mac_16, 2);
-					// Get Recieve options
-					uint8_t r_opt = input_temp.get();
-					// Get Data as string;
-					std::string r_data(frame_length - 12, '\0');
-					input_temp.read(&r_data[0], frame_length - 12);
-					std::cout << "Packet Payload is: " << r_data;
-					//RecievePacket recieve(mac_64, mac_16, r_opt, r_data);
-					break;
-				}
-				default:
-					// Throw some error
-					break;
-			}
-			// User callback with Frame type?
-		}
-	}*/
+		std::cout << std::endl;*/
+
+		//std::cout << "Frame: " << a_frame->ToHexString(HexFormat::NO_SPACING) << std::endl;
+		//std::array<uint8_t, 30> hello = {0x7E, 0x00, 0x1A, 0x10, 0x00, 0x00, 0x13, 0xA2, 0x00, 0x40, 0xA8, 0x15, 0xD6, 0xFF, 0xFE, 0x00, 0x00, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x51, 0x75, 0x61, 0x64, 0x44, 0x21, 0x66};
+		//boost::asio::async_write(m_port, boost::asio::buffer(hello, 30), boost::bind(&SerialXbee::FrameWritten, this, _1, _2, a_frame));
+		//boost::asio::write(m_port, boost::asio::buffer(a_frame->ToHexString(HexFormat::NO_SPACING), (a_frame->ToHexString(HexFormat::NO_SPACING).size())));
+		//boost::asio::write(m_port, boost::asio::buffer(hello, hello.size()));
+		boost::asio::async_write(m_port, boost::asio::buffer(temp, temp.size()), boost::bind(&SerialXbee::FrameWritten, this, _1, _2, a_frame));
+	}
 }

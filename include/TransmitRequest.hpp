@@ -20,6 +20,9 @@ namespace XBEE {
 		// Fix this so it appends the data buffer
 		void SetData(const std::string &message);
 
+		std::string ToHexString(HexFormat spacing = HexFormat::NO_SPACING) const;
+		std::vector<uint8_t> SerializeFrame() const;
+
 	protected:
 		// Used to enable xbee firmware check message on successful send (for values above 0) -- Not implemented
 		uint8_t frame_id = 0x00;
@@ -35,7 +38,6 @@ namespace XBEE {
 	private:
 		void SetLength();
 		void SetChecksum();
-		std::string ToHexString(HexFormat spacing = HexFormat::NO_SPACING) const;
 		friend std::ostream& operator<<(std::ostream &strm, const TransmitRequest &tr) {
 			return strm << tr.ToHexString();
 		}
