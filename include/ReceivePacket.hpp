@@ -34,7 +34,6 @@ namespace XBEE {
     void SetChecksum();
     void SetChecksum_old();
     void SetData();
-    std::string ToHexString(HexFormat spacing = HexFormat::NO_SPACING) const;
     
     // TODO: Finish implementation, currently mimics behavior of TransmitRequest << operator
 //    friend std::ostream& operator<<(std::ostream &strm, const ReceivePacket &rp) {

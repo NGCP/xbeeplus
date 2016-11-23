@@ -24,11 +24,9 @@ namespace XBEE {
 	// TODO: Clean up and optimize this messy code when time permits
 	// TODO: Implement checksum checking
 	void SerialXbee::ParseFrame(const boost::system::error_code &error, size_t num_bytes) {
-		// std::cout << "FOUND A FRAME TO PARSE!" << std::endl;
 		using namespace boost::asio;
 
 		char holder[8];
-
 		uint16_t frame_length;
 		uint8_t frame_type;
 		Frame *cur_frame = NULL;
@@ -37,66 +35,67 @@ namespace XBEE {
 			std::cout << "[ERROR] FOUND" << std::endl;
 			// throw an error, by repeating system error code
 		}
+		
 		/*if (num_bytes != 2) {
 			std::cout << "[ERROR] NOT ENOUGH BYTES" << std::endl;
 		}*/
+
 		// Clears buffer (Should only contain 0x7E delimiter, which is added automatically when new Frame object is created)
 		buffer.consume(num_bytes);
+		num_bytes = 0;
 		// Synchronously read the next 2 bytes of Frame (Frame Length)
-		read(m_port, buffer, transfer_exactly(2));
+
+		while (buffer.size() < 3)
+			read(m_port, buffer, transfer_exactly(1));
+
 		std::istream temp(&buffer);
 		temp.get(holder[0]);
 		temp.get(holder[1]);
 		frame_length = (holder[0] << 8) + holder[1];
-		read(m_port, buffer, transfer_exactly(1));
 		temp.get(holder[0]);
 		frame_type = holder[0];
-		// std::cout << std::hex << std::uppercase << std::setfill('0') <<  std::setw(4) << static_cast<int>(frame_length) << std::endl;
-		// std::cout << std::hex << std::uppercase << std::setfill('0') <<  std::setw(2) << static_cast<int>(frame_type) << std::endl;
 
+		size_t read_amount = frame_length - buffer.size();
+		read(m_port, buffer, transfer_exactly(read_amount));
+		
 		// Construct Frame object
 		switch(FrameType(frame_type)) {
 			case FrameType::RECEIVE_PACKET:
 			{
 				ReceivePacket frame;
-				// Read rest of frame data
-				read(m_port, buffer, transfer_exactly(frame_length - 1));
 				// Mac 64
-				for (int i = 0; i < 8; i++) {
+				for (int i = 0; i < 8; i++)
 					temp.get(holder[i]);
-					//std::cout << std::hex << std::uppercase << std::setfill('0') << std::setw(8) << static_cast<uint64_t>(holder[i]) << std::endl;
-				}
-				frame.source_mac_64 = (static_cast<uint64_t>(holder[0] & 0xFF) << 56);
+
+				frame.source_mac_64 =  (static_cast<uint64_t>(holder[0] & 0xFF) << 56);
 				frame.source_mac_64 += (static_cast<uint64_t>(holder[1] & 0xFF) << 48);
 				frame.source_mac_64 += (static_cast<uint64_t>(holder[2] & 0xFF) << 40);
 				frame.source_mac_64 += (static_cast<uint64_t>(holder[3] & 0xFF) << 32);
 				frame.source_mac_64 += (static_cast<uint64_t>(holder[4] & 0xFF) << 24);
 				frame.source_mac_64 += (static_cast<uint64_t>(holder[5] & 0xFF) << 16);
 				frame.source_mac_64 += (static_cast<uint64_t>(holder[6] & 0xFF) << 8);
-				frame.source_mac_64 += static_cast<uint64_t>(holder[7]) & 0xFF;
-				//std::cout << std::hex << std::uppercase << std::setfill('0') <<  std::setw(8) << frame.source_mac_64 << std::endl;
+				frame.source_mac_64 +=  static_cast<uint64_t>(holder[7]) & 0xFF;
+
 				// Mac 16
 				temp.get(holder[0]);
 				temp.get(holder[1]);
 				frame.source_mac_16 = (static_cast<uint64_t>(holder[0] & 0xFF) << 8);
 				frame.source_mac_16 += static_cast<uint64_t>(holder[1]) & 0xFF;
-				//std::cout << std::hex << std::uppercase << std::setfill('0') <<  std::setw(4) << frame.source_mac_16 << std::endl;
+
 				// Recieve Options
 				temp.get(holder[0]);
 				frame.options = holder[0];
+
 				// Store into RecievePacket's data field
 				uint8_t piece;
-				for (int i = 0; i < frame_length - 12; i++) {
-					temp.get(holder[0]);
-					piece = holder[0];
-					frame.data.at(i) = piece;
-				}
+				for (int i = 0; i < frame_length - 13; i++)
+					temp >> frame.data.at(i);
 				frame.length = frame_length;
 				temp.get(holder[0]);
 				piece = holder[0];
-				//std::cout << "Checksum is: " << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << static_cast<int>(piece) << std::endl;
 				frame.checksum = piece;
 				cur_frame = &frame;
+
 				break;
 			}
 			default:
@@ -104,7 +103,6 @@ namespace XBEE {
 				break;
 		}
 		// TODO: Add support for user callback function with Frame pointer type
-		//std::cout << "We are calling ReadHandler" << std::endl;
 		ReadHandler(cur_frame);
 		AsyncReadFrame();
 	}
@@ -130,8 +128,6 @@ namespace XBEE {
 	}
 
 	void SerialXbee::AsyncWriteFrame(Frame *a_frame) {
-		std::cout << "Entered WriteFrame Function" << std::endl;
-
 		std::vector<uint8_t> temp = a_frame->SerializeFrame();
 
 		/*std::cout << "Contents of vector is: " << std::endl;

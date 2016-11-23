@@ -242,16 +242,16 @@ int main(int argc, char* argv[]) {
 
     // Warning API level 1 (no escapes)
     XBEE::SerialXbee test;
-    XBEE::TransmitRequest frame_0(0x0013A20040A815D6);
-    frame_0.SetData("Hello QuadD!");
-    //test.AsyncReadFrame();
+    /*XBEE::TransmitRequest frame_0(0x0013A20040A815D6);
+    frame_0.SetData("Hello QuadD!");*/
+    test.AsyncReadFrame();
     int i = 0;
 
     while(true) {
-    std::cout << std::dec << i++ << " seconds have passed" << std::endl;
-    if (i == 5 || i == 6) {
-        test.AsyncWriteFrame(&frame_0);
+        std::cout << std::dec << i++ << " seconds have passed" << std::endl;
+        /*if (i == 5 || i == 6) {
+            test.AsyncWriteFrame(&frame_0);
+        }*/
+        sleep(1);
     }
-    sleep(1);
-}
 }
