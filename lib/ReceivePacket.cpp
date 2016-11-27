@@ -72,7 +72,6 @@ namespace XBEE {
   }
 
   std::string ReceivePacket::ToHexString(HexFormat spacing) const {
-    
         std::stringstream tmp;
     // TODO: Implement HexString function without third argument
       bool even_space = false;
@@ -92,7 +91,7 @@ namespace XBEE {
           for (auto itr = data.begin(); itr != data.end(); ++itr)
             if (*itr != 0x00)
               tmp << HexString(*itr, even_space, even_space);
-          
+              
           // TODO: Figure out how to avoid if statement
           // checksum wont be spaced for DATA_SPACING case
           // if a ' ' is thrown in, checksum wont be not spaced for NO_SPACING case
@@ -100,31 +99,6 @@ namespace XBEE {
           tmp << HexString(checksum, even_space, false);
       }
       return tmp.str();
-    
-//    std::stringstream tmp;
-//    bool even_space = false;
-//    std::string space = "";
-//    switch (spacing) {
-//      case HexFormat::BYTE_SPACING:
-//        even_space = true;
-//      case HexFormat::DATA_SPACING:
-//        space = ' ';
-//      case HexFormat::NO_SPACING:
-//        tmp << HexString(start, even_space) << space;
-//        tmp << HexString(length, even_space) << space;
-//        tmp << HexString(frame_type, even_space) << space;
-//        tmp << HexString(source_mac_64, even_space) << space;
-//        tmp << HexString(source_mac_16, even_space) << space;
-//        tmp << HexString(options, even_space) << space;
-//        for (auto itr = data.begin(); itr != data.end(); ++itr)
-//          if (*itr != 0x00)
-      
-      // this loop will not work as intended for DATA_SPACING because the data array is iterated per char
-//            tmp << HexString(*itr, even_space) << space;
-//        tmp << HexString(checksum, even_space) << space;
-//        break;
-//    }
-//    return tmp.str();
   }
 
   void ReceivePacket::SetChecksum() {

@@ -110,8 +110,6 @@ namespace XBEE {
 	void SerialXbee::FrameWritten(const boost::system::error_code &error, size_t num_bytes, Frame *a_frame) {
 		using namespace boost::asio;
 
-		std::cout << "Entered FrameWritten Function" << std::endl;
-
 		if (error) {
 			std::cout << "[ERROR] FOUND" << std::endl;
 		}
@@ -129,18 +127,6 @@ namespace XBEE {
 
 	void SerialXbee::AsyncWriteFrame(Frame *a_frame) {
 		std::vector<uint8_t> temp = a_frame->SerializeFrame();
-
-		/*std::cout << "Contents of vector is: " << std::endl;
-		for (auto itr = temp.begin(); itr != temp.end(); ++itr) {
-			std::cout << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << static_cast<int>(*itr) << " "; 
-		}
-		std::cout << std::endl;*/
-
-		//std::cout << "Frame: " << a_frame->ToHexString(HexFormat::NO_SPACING) << std::endl;
-		//std::array<uint8_t, 30> hello = {0x7E, 0x00, 0x1A, 0x10, 0x00, 0x00, 0x13, 0xA2, 0x00, 0x40, 0xA8, 0x15, 0xD6, 0xFF, 0xFE, 0x00, 0x00, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x51, 0x75, 0x61, 0x64, 0x44, 0x21, 0x66};
-		//boost::asio::async_write(m_port, boost::asio::buffer(hello, 30), boost::bind(&SerialXbee::FrameWritten, this, _1, _2, a_frame));
-		//boost::asio::write(m_port, boost::asio::buffer(a_frame->ToHexString(HexFormat::NO_SPACING), (a_frame->ToHexString(HexFormat::NO_SPACING).size())));
-		//boost::asio::write(m_port, boost::asio::buffer(hello, hello.size()));
 		boost::asio::async_write(m_port, boost::asio::buffer(temp, temp.size()), boost::bind(&SerialXbee::FrameWritten, this, _1, _2, a_frame));
 	}
 }

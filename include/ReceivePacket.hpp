@@ -35,7 +35,7 @@ namespace XBEE {
     void SetChecksum_old();
     void SetData();
     
-    // TODO: Finish implementation, currently mimics behavior of TransmitRequest << operator
+// TODO: Finish implementation, currently mimics behavior of TransmitRequest << operator
 //    friend std::ostream& operator<<(std::ostream &strm, const ReceivePacket &rp) {
 //      return strm << rp.ToHexString();
 //    }

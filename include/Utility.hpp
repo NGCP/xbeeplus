@@ -34,4 +34,3 @@ namespace XBEE {
   template <typename T> std::vector<uint8_t> HexData(T &item);
 }
 #endif /* UTILITY_HPP */
-
