@@ -8,17 +8,37 @@
 #include "../lib/Utility.cpp"
 
 namespace XBEE {
-	// TODO: Figure out why the below won't work for some dumb reason
-	SerialXbee::SerialXbee() : m_io(), m_port(m_io) {
-		Connect(kDefaultPath);
+	// Note: The below only works if the source is compiled into the program
+	SerialXbee::SerialXbee() {
+		m_io = std::make_shared<boost::asio::io_service>();
 		ReadHandler = std::bind(&SerialXbee::PrintFrame, this, std::placeholders::_1);
 		WriteHandler = std::bind(&SerialXbee::PrintFrame, this, std::placeholders::_1);
 	}
 
 	void SerialXbee::Connect(std::string device_path, uint32_t baud_rate) {
-		m_port.open(device_path);
-		m_port.set_option(boost::asio::serial_port_base::baud_rate(baud_rate));
-		runner = boost::thread(boost::bind(&boost::asio::io_service::run, &m_io));
+		boost::system::error_code connect_error;
+
+		if(m_port) {
+			// TODO: Throw a "Port already open exception"
+		}
+
+		//m_port = serial_port_ptr(new boost::asio::serial_port(*m_io));
+		m_port = std::make_shared<boost::asio::serial_port>(*m_io);
+		m_port->open(device_path, connect_error);
+
+		if (connect_error) {
+			// TODO: Throw a "Port was unable to connect exception, append the connect_error, and port name"
+		}
+
+		m_port->set_option(boost::asio::serial_port_base::baud_rate(baud_rate));
+		// TODO: Implement this stuff as well
+		/*port_->set_option(boost::asio::serial_port_base::character_size(8));
+		port_->set_option(boost::asio::serial_port_base::stop_bits(boost::asio::serial_port_base::stop_bits::one));
+		port_->set_option(boost::asio::serial_port_base::parity(boost::asio::serial_port_base::parity::none));
+		port_->set_option(boost::asio::serial_port_base::flow_control(boost::asio::serial_port_base::flow_control::none));
+		*/
+
+		runner = boost::thread(boost::bind(&boost::asio::io_service::run, m_io));
 	}
 
 	// TODO: Clean up and optimize this messy code when time permits
@@ -46,7 +66,7 @@ namespace XBEE {
 		// Synchronously read the next 2 bytes of Frame (Frame Length)
 
 		while (buffer.size() < 3)
-			read(m_port, buffer, transfer_exactly(1));
+			read(*m_port, buffer, transfer_exactly(1));
 
 		std::istream temp(&buffer);
 		temp.get(holder[0]);
@@ -56,7 +76,7 @@ namespace XBEE {
 		frame_type = holder[0];
 
 		size_t read_amount = frame_length - buffer.size();
-		read(m_port, buffer, transfer_exactly(read_amount));
+		read(*m_port, buffer, transfer_exactly(read_amount));
 		
 		// Construct Frame object
 		switch(FrameType(frame_type)) {
@@ -67,6 +87,7 @@ namespace XBEE {
 				for (int i = 0; i < 8; i++)
 					temp.get(holder[i]);
 
+				// TODO: Abstract this to a utility function
 				frame.source_mac_64 =  (static_cast<uint64_t>(holder[0] & 0xFF) << 56);
 				frame.source_mac_64 += (static_cast<uint64_t>(holder[1] & 0xFF) << 48);
 				frame.source_mac_64 += (static_cast<uint64_t>(holder[2] & 0xFF) << 40);
@@ -122,11 +143,11 @@ namespace XBEE {
 	}
 
 	void SerialXbee::AsyncReadFrame() {
-		boost::asio::async_read_until(m_port, buffer, 0x7E, boost::bind(&SerialXbee::ParseFrame, this, _1, _2));
+		boost::asio::async_read_until(*m_port, buffer, 0x7E, boost::bind(&SerialXbee::ParseFrame, this, _1, _2));
 	}
 
 	void SerialXbee::AsyncWriteFrame(Frame *a_frame) {
 		std::vector<uint8_t> temp = a_frame->SerializeFrame();
-		boost::asio::async_write(m_port, boost::asio::buffer(temp, temp.size()), boost::bind(&SerialXbee::FrameWritten, this, _1, _2, a_frame));
+		boost::asio::async_write(*m_port, boost::asio::buffer(temp, temp.size()), boost::bind(&SerialXbee::FrameWritten, this, _1, _2, a_frame));
 	}
 }
