@@ -22,7 +22,6 @@
 	static const std::string kDefaultPath = "/dev/ttyUSB0";
 #endif
 
-// TODO: Frank needs to add a callback function to his GCS interface
 namespace XBEE {
 	class SerialXbee : boost::noncopyable {
 	typedef std::shared_ptr<boost::asio::serial_port> serial_port_ptr;
@@ -48,6 +47,7 @@ namespace XBEE {
 		std::function<void(Frame *)> WriteHandler;
 		// Testing a way to call the SerialXbee class from the library itself 
 		SerialXbee();
+		SerialXbee(io_service_ptr m_io, serial_port_ptr m_port);
 		// TODO: Add a blocking (synchronous) read function
 		void AsyncReadFrame();
 		// TODO: Add a blocking (synchronous) write function

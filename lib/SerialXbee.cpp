@@ -18,12 +18,9 @@ namespace XBEE {
 	void SerialXbee::Connect(std::string device_path, uint32_t baud_rate) {
 		boost::system::error_code connect_error;
 
-		if(m_port) {
-			// TODO: Throw a "Port already open exception"
+		if(!m_port) {
+			m_port = std::make_shared<boost::asio::serial_port>(*m_io);
 		}
-
-		//m_port = serial_port_ptr(new boost::asio::serial_port(*m_io));
-		m_port = std::make_shared<boost::asio::serial_port>(*m_io);
 		m_port->open(device_path, connect_error);
 
 		if (connect_error) {

@@ -240,7 +240,6 @@ int main(int argc, char* argv[]) {
     if (TestHexString()) cout << "HexString test failed" << std::endl;
     if (TestByteSum()) cout << "ByteSum test failed" << std::endl;
 
-    std::shared_ptr<boost::asio::io_service> cur = std::make_shared<boost::asio::io_service>();
     // Warning API level 1 (no escapes)
     XBEE::SerialXbee test;
     // Wrap in a try/catch block for error checking
