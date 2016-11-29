@@ -54,6 +54,7 @@ namespace XBEE {
 		void AsyncWriteFrame(Frame *a_frame);
 		// TODO: Add support for port options, data bit size, parity etc...
 		void Connect(std::string device_path = kDefaultPath, uint32_t baud_rate = 57600);
+		void Stop();
 	};
 }
 #endif

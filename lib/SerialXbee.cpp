@@ -16,6 +16,10 @@ namespace XBEE {
 	}
 
 	SerialXbee::~SerialXbee() {
+		Stop();
+	}
+
+	void SerialXbee::Stop() {
 		if (m_port) {
 			m_port->cancel();
 			m_port->close();
