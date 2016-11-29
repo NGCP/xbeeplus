@@ -15,6 +15,16 @@ namespace XBEE {
 		WriteHandler = std::bind(&SerialXbee::PrintFrame, this, std::placeholders::_1);
 	}
 
+	SerialXbee::~SerialXbee() {
+		if (m_port) {
+			m_port->cancel();
+			m_port->close();
+			m_port.reset();
+		}
+		m_io->stop();
+		m_io.reset();
+	}
+
 	void SerialXbee::Connect(std::string device_path, uint32_t baud_rate) {
 		boost::system::error_code connect_error;
 
@@ -106,8 +116,8 @@ namespace XBEE {
 
 				// Store into RecievePacket's data field
 				uint8_t piece;
-				for (int i = 0; i < frame_length - 13; i++)
-					temp >> frame.data.at(i);
+				for (int i = 0; i < frame_length - 12; i++)
+					temp >> std::noskipws >> frame.data.at(i);
 				frame.length = frame_length;
 				temp.get(holder[0]);
 				piece = holder[0];

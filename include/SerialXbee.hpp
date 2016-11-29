@@ -47,7 +47,7 @@ namespace XBEE {
 		std::function<void(Frame *)> WriteHandler;
 		// Testing a way to call the SerialXbee class from the library itself 
 		SerialXbee();
-		SerialXbee(io_service_ptr m_io, serial_port_ptr m_port);
+		~SerialXbee();
 		// TODO: Add a blocking (synchronous) read function
 		void AsyncReadFrame();
 		// TODO: Add a blocking (synchronous) write function
