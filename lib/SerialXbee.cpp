@@ -10,7 +10,6 @@
 namespace XBEE {
 	// Note: The below only works if the source is compiled into the program
 	SerialXbee::SerialXbee() {
-		m_io = std::make_shared<boost::asio::io_service>();
 		ReadHandler = std::bind(&SerialXbee::PrintFrame, this, std::placeholders::_1);
 		WriteHandler = std::bind(&SerialXbee::PrintFrame, this, std::placeholders::_1);
 	}
@@ -31,6 +30,9 @@ namespace XBEE {
 
 	void SerialXbee::Connect(std::string device_path, uint32_t baud_rate) {
 		boost::system::error_code connect_error;
+
+		if (!m_io)
+			m_io = std::make_shared<boost::asio::io_service>();
 
 		if(!m_port) {
 			m_port = std::make_shared<boost::asio::serial_port>(*m_io);
