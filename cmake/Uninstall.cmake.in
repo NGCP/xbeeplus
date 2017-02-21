@@ -1,0 +1,38 @@
+# File source: https://cmake.org/Wiki/CMake_FAQ#Can_I_do_.22make_uninstall.22_with_CMake.3F
+# Internal template file for uninstall targets
+
+if(NOT EXISTS "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt")
+	message(FATAL_ERROR "Cannot find install manifest: @CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt")
+endif(NOT EXISTS "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt")
+
+set(delete_manifest yes)
+file(READ "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt" files)
+string(REGEX REPLACE "\n" ";" files "${files}")
+foreach(file ${files})
+	message(STATUS "Uninstalling $ENV{DESTDIR}${file}")
+	if(IS_SYMLINK "$ENV{DESTDIR}${file}" OR EXISTS "$ENV{DESTDIR}${file}")
+		exec_program(
+			"@CMAKE_COMMAND@" ARGS "-E remove \"$ENV{DESTDIR}${file}\""
+			OUTPUT_VARIABLE rm_out
+			RETURN_VALUE rm_retval
+		)
+		if(NOT "${rm_retval}" STREQUAL 0)
+			message(FATAL_ERROR "Problem when removing $ENV{DESTDIR}${file}")
+			set(delete_manifest no)
+		endif(NOT "${rm_retval}" STREQUAL 0)
+	else(IS_SYMLINK "$ENV{DESTDIR}${file}" OR EXISTS "$ENV{DESTDIR}${file}")
+		message(STATUS "File $ENV{DESTDIR}${file} does not exist.")
+		set(delete_manifest no)
+	endif(IS_SYMLINK "$ENV{DESTDIR}${file}" OR EXISTS "$ENV{DESTDIR}${file}")
+endforeach(file)
+
+# Function to delete install_manifest.txt if all files were deleted
+# TODO(kjayakum):	Update this to instead delete the lines from the install manifest that were
+					removed, and then delete the install_manifest if it is left empty
+if(${delete_manifest} STREQUAL yes)
+	exec_program(
+		"@CMAKE_COMMAND@" ARGS "-E remove \"@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt\""
+		OUTPUT_VARIABLE rm_out
+		RETURN_VALUE rm_retval
+	)
+endif(${delete_manifest} STREQUAL yes)

@@ -7,7 +7,7 @@
 #include <string>
 
 #include "../include/Utility.hpp"
-#include "../lib/Utility.cpp"
+#include "../src/Utility.cpp"
 #include "../include/SerialXbee.hpp"
 #include "../include/TransmitRequest.hpp"
 #include "../include/Xbee.hpp"

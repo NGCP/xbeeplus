@@ -5,7 +5,7 @@
 #include "../include/ReceivePacket.hpp"
 #include "../include/TransmitRequest.hpp"
 #include "../include/Utility.hpp"
-#include "../lib/Utility.cpp"
+#include "Utility.cpp"
 
 namespace XBEE {
 	// Note: The below only works if the source is compiled into the program
@@ -136,7 +136,6 @@ namespace XBEE {
 				// Throw unable to parse frame error
 				break;
 		}
-		// TODO: Add support for user callback function with Frame pointer type
 		ReadHandler(cur_frame);
 		AsyncReadFrame();
 	}

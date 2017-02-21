@@ -40,7 +40,6 @@ namespace XBEE {
 		void PrintFrame(Frame *a_frame);
 		// Eventually use this if necessary
 		// SerialXbee() = delete;
-		
 
 	public:
 		std::function<void(Frame *)> ReadHandler;

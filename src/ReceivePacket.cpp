@@ -7,7 +7,7 @@
 #include "../include/ReceivePacket.hpp"
 #include "../include/Xbee.hpp"
 #include "../include/Utility.hpp"
-#include "../lib/Utility.cpp"
+#include "Utility.cpp"
 
 namespace XBEE {
 
