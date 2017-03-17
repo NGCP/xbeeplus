@@ -1,5 +1,3 @@
-#pragma once
-
 #ifndef TRANSMIT_REQUEST_HPP
 #define TRANSMIT_REQUEST_HPP
 

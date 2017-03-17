@@ -1,5 +1,3 @@
-#pragma once
-
 #ifndef SERIALXBEE_HPP
 #define SERIALXBEE_HPP
 

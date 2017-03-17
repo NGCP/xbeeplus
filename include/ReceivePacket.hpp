@@ -1,5 +1,3 @@
-#pragma once
-
 #ifndef RECIEVE_PACKET_HPP
 #define RECIEVE_PACKET_HPP
 

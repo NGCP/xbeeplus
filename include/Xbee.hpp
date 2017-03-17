@@ -1,5 +1,3 @@
-#pragma once
-
 #ifndef XBEE_HP
 #define XBEE_HP
 
