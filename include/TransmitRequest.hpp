@@ -34,7 +34,7 @@ namespace XBEE {
 		uint8_t options = 0x00;
 		// Possible bug: Cannot send/transmit the null character
 		// In XCTU, data field theoretically holds 65521 bytes
-		std::array<uint8_t, 257> data{};
+		std::array<uint8_t, 256> data{};
 
 	private:
 		void SetLength();
