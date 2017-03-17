@@ -50,7 +50,7 @@ namespace XBEE {
     auto itr = data.begin();
     std::string temp = "";
     while(*itr != 0x00) {
-      temp += static_cast<char>(*itr);
+      temp += static_cast<char>(*itr++);
     }
     return temp;
   }

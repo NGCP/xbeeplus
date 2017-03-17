@@ -4,7 +4,6 @@
 #define SERIALXBEE_HPP
 
 #include <functional>
-#include <memory>
 
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
@@ -24,11 +23,13 @@
 
 namespace XBEE {
 	class SerialXbee : boost::noncopyable {
+	/*
 	typedef std::shared_ptr<boost::asio::serial_port> serial_port_ptr;
 	typedef std::shared_ptr<boost::asio::io_service> io_service_ptr;
+	*/
 	private:
-		io_service_ptr m_io;
-		serial_port_ptr m_port;
+		boost::asio::io_service io;
+		boost::asio::serial_port port;
 		boost::asio::streambuf buffer;
 		boost::thread runner;
 

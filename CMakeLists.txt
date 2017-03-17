@@ -58,7 +58,7 @@ set(LIB_HEADERS
 	include/RecievePacket.hpp
 	include/TransmitRequest.hpp
 	include/Utility.hpp
-	include/SerialXbee.hpp
+#	include/SerialXbee.hpp
 )
 
 # TODO(kjayakum): Support Cross-Platform Builds

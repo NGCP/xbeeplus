@@ -24,7 +24,7 @@ SerialXbee:
 	$(CXX) $(CXX_FLAGS) -fPIC -c $(SRC_DIR)/SerialXbee.cpp -o $(BUILD_DIR)/SerialXbee.o
 
 Test1: 
-	$(CXX) $(CXX_FLAGS) $(TEST_DIR)/main.cpp $(BUILD_DIR)/SerialXbee.o -o $(BUILD_DIR)/Test1 -L$(BUILD_DIR) -lboost_system -lpthread -lboost_thread -lxbee_plus
+	$(CXX) $(CXX_FLAGS) $(TEST_DIR)/xbeetest.cpp $(BUILD_DIR)/SerialXbee.o -o $(BUILD_DIR)/Test1 -L$(BUILD_DIR) -lboost_system -lpthread -lboost_thread -lxbee_plus
 	
 .PHONY: clean
 	

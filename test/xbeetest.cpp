@@ -244,9 +244,11 @@ int main(int argc, char* argv[]) {
     XBEE::SerialXbee test;
     // Wrap in a try/catch block for error checking
     test.Connect();
-    /*XBEE::TransmitRequest frame_0(0x0013A20040A815D6);
-    frame_0.SetData("Hello QuadD!");*/
-    test.AsyncReadFrame();
+    /*
+    XBEE::TransmitRequest frame_0(0x0013A20040A815D6);
+    frame_0.SetData("Hello QuadD!");
+    */
+    //test.AsyncReadFrame();
     int i = 0;
 
     while(true) {

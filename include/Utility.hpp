@@ -28,7 +28,7 @@ namespace XBEE {
   inline uint8_t ByteSum(char *item);
   inline uint8_t ByteSum(const char *item);
   inline uint8_t ByteSum(const std::string& item);
-  template<typename T> uint8_t ByteSum(T &item);
+  template<typename T> uint8_t ByteSum(T &item);  
   
   // HexData functions and overloads
   template <typename T> std::vector<uint8_t> HexData(T &item);
