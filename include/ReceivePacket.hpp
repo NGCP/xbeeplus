@@ -27,7 +27,8 @@ namespace XBEE {
     // Used to set packet options (not yet implemented)
     uint8_t options = 0x00;
     // Possible bug: Cannot receive the null character
-    std::array<uint8_t, 65521> data{};
+    // In XCTU, data field theoretically holds 65521 bytes
+    std::array<uint8_t, 256> data{};
 
   private:
     void SetLength();

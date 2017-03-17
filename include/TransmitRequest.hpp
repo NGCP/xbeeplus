@@ -33,7 +33,8 @@ namespace XBEE {
 		// Used to set extra options like AES encryption -- Not implemented
 		uint8_t options = 0x00;
 		// Possible bug: Cannot send/transmit the null character
-		std::array<uint8_t, 65521> data{};
+		// In XCTU, data field theoretically holds 65521 bytes
+		std::array<uint8_t, 257> data{};
 
 	private:
 		void SetLength();

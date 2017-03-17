@@ -6,8 +6,10 @@
 #include <cstdint>
 #include <string>
 #include <array>
-/*#include <typeinfo>
-#include <type_traits>*/
+/*
+#include <typeinfo>
+#include <type_traits>
+*/
 
 namespace XBEE {
   const uint8_t kMaxChecksum = 0xFF;
