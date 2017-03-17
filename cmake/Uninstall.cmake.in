@@ -28,7 +28,7 @@ endforeach(file)
 
 # Function to delete install_manifest.txt if all files were deleted
 # TODO(kjayakum):	Update this to instead delete the lines from the install manifest that were
-					removed, and then delete the install_manifest if it is left empty
+#					removed, and then delete the install_manifest if it is left empty
 if(${delete_manifest} STREQUAL yes)
 	exec_program(
 		"@CMAKE_COMMAND@" ARGS "-E remove \"@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt\""
