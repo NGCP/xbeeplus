@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.0 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.1 FATAL_ERROR)
 
 # Include cmake scripts
 include(cmake/GetGitRevisionDescription.cmake)
@@ -32,7 +32,7 @@ option(BUILD_SHARED_LIBS		"Build shared instead of static libraries."					ON)
 option(OPTION_BUILD_EXAMPLES	"Build examples."											OFF)
 
 # Get BOOST Libraries
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system thread)
 find_package(Threads REQUIRED)
 
 # Set BOOST options
@@ -72,8 +72,9 @@ add_library(${META_PROJECT_NAME} SHARED ${LIB_SOURCES})
 target_compile_options(${META_PROJECT_NAME} PUBLIC -fPIC -Wall -Werror -g)
 
 # Link targets for library 
-target_link_libraries(${META_PROJECT_NAME} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(${META_PROJECT_NAME} PUBLIC ${Boost_LIBRARIES})
+target_link_libraries(${META_PROJECT_NAME} PUBLIC Threads::Threads)
+target_link_libraries(${META_PROJECT_NAME} PUBLIC	${Boost_THREAD_LIBRARY}
+													${Boost_SYSTEM_LIBRARY})
 
 # Install target for library
 install(TARGETS ${META_PROJECT_NAME}
