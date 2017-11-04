@@ -248,7 +248,7 @@ int main(int argc, char* argv[]) {
     XBEE::TransmitRequest frame_0(0x0013A20040A815D6);
     frame_0.SetData("Hello QuadD!");
     */
-    //test.AsyncReadFrame();
+    test.AsyncReadFrame();
     int i = 0;
 
     while(true) {

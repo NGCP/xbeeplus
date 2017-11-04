@@ -33,6 +33,7 @@ option(OPTION_BUILD_EXAMPLES	"Build examples."											OFF)
 
 # Get BOOST Libraries
 find_package(Boost REQUIRED)
+find_package(Threads REQUIRED)
 
 # Set BOOST options
 set(Boost_USE_STATIC_LIBS			OFF)
@@ -60,6 +61,7 @@ set(LIB_HEADERS
 	include/Utility.hpp
 #	include/SerialXbee.hpp
 )
+include_directories(${Boost_INCLUDE_DIRS})
 
 # TODO(kjayakum): Support Cross-Platform Builds
 # TODO(kjayakum): Allow '-g' flag to be set by cmake DEBUG variable
@@ -70,7 +72,8 @@ add_library(${META_PROJECT_NAME} SHARED ${LIB_SOURCES})
 target_compile_options(${META_PROJECT_NAME} PUBLIC -fPIC -Wall -Werror -g)
 
 # Link targets for library 
-target_link_libraries(${META_PROJECT_NAME} PUBLIC -lboost_system -lpthread -lboost_thread)
+target_link_libraries(${META_PROJECT_NAME} PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${META_PROJECT_NAME} PUBLIC ${Boost_LIBRARIES})
 
 # Install target for library
 install(TARGETS ${META_PROJECT_NAME}

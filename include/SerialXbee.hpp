@@ -17,6 +17,8 @@
 	static const std::string kDefaultPath = "COM0";
 #elif __linux__
 	static const std::string kDefaultPath = "/dev/ttyUSB0";
+	#elif __APPLE__
+	static const std::string kDefaultPath = "/dev/tty.usbserial-DJ00I0E5";
 #endif
 
 namespace XBEE {
