@@ -25,11 +25,11 @@ set(CMAKE_CXX_STANDARD			11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Project options
-option(BUILD_SHARED_LIBS		"Build shared instead of static libraries."					ON)
-#option(OPTION_SELF_CONTAINED	"Create a self-contained install with all dependencies."	OFF)
-#option(OPTION_BUILD_TESTS		"Build tests."												OFF)
-#option(OPTION_BUILD_DOCS		"Build documentation."										OFF)
-option(OPTION_BUILD_EXAMPLES	"Build examples."											OFF)
+option(BUILD_SHARED_LIBS		"Build shared instead of static libraries."	ON)
+#option(SELF_CONTAINED	"Create an install with all dependencies."	OFF)
+#option(BUILD_TESTS		"Build tests."								OFF)
+#option(BUILD_DOCS		"Build documentation."						OFF)
+option(BUILD_EXAMPLES	"Build examples."							ON)
 
 # Get BOOST Libraries
 find_package(Boost REQUIRED COMPONENTS system thread)
@@ -73,8 +73,8 @@ target_compile_options(${META_PROJECT_NAME} PUBLIC -fPIC -Wall -Werror -g)
 
 # Link targets for library 
 target_link_libraries(${META_PROJECT_NAME} PUBLIC Threads::Threads)
-target_link_libraries(${META_PROJECT_NAME} PUBLIC	${Boost_THREAD_LIBRARY}
-													${Boost_SYSTEM_LIBRARY})
+target_link_libraries(${META_PROJECT_NAME} PUBLIC
+						${Boost_THREAD_LIBRARY} ${Boost_SYSTEM_LIBRARY})
 
 # Install target for library
 install(TARGETS ${META_PROJECT_NAME}
@@ -85,19 +85,8 @@ install(TARGETS ${META_PROJECT_NAME}
 # Uninstall target for library
 add_uninstall_target()
 
-# TODO(kjayakum): Support Cross-Platform builds
-# TODO(kjayakum): Enable this to be built via cmake test option
-# Test target
-# add_executable(xbeetest test/xbeetest.cpp)
-
-# Compile options for test
-#target_compile_options(xbeetest PUBLIC -Wall -Werror -g)
-
-# Link targets for test
-#target_link_libraries(xbeetest PUBLIC -lboost_system -lpthread -lboost_thread -lxbee_plus)
-
-# Check for system dir install
-#set(SYSTEM_DIR_INSTALL FALSE)
-#if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr" OR "${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
-#    set(SYSTEM_DIR_INSTALL TRUE)
-#endif()
+if(BUILD_EXAMPLES)
+	# Example command line app to send and recieve messages
+	add_executable(xbeetest examples/xbeetest.cpp)
+	target_link_libraries(xbeetest ${META_PROJECT_NAME})
+endif()
