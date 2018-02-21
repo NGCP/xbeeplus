@@ -236,6 +236,10 @@ int TestByteSum() {
     return 0;
 }
 
+void CallbackFunction(XBEE::Frame *item) {
+
+}
+
 int main(int argc, char* argv[]) {
     if (TestHexString()) cout << "HexString test failed" << std::endl;
     if (TestByteSum()) cout << "ByteSum test failed" << std::endl;
@@ -244,18 +248,21 @@ int main(int argc, char* argv[]) {
     XBEE::SerialXbee test;
     // Wrap in a try/catch block for error checking
     test.Connect();
-    /*
-    XBEE::TransmitRequest frame_0(0x0013A20040A815D6);
-    frame_0.SetData("Hello QuadD!");
-    */
-    test.AsyncReadFrame();
+    test.ReadHandler = std::bind(&CallbackFunction, std::placeholders::_1);
+    
+    // 0x0013A20040A815D6
+    XBEE::TransmitRequest frame_0(0x0013A200409BD79C);
+    frame_0.SetData("NEWMSG,UPDT,Q2,P35.300266 -120.661823 101.653000,SOnline,R0");
+
+    //test.AsyncReadFrame();
     int i = 0;
 
     while(true) {
+        XBEE::TransmitRequest frame_0(0x0013A200409BD79C);
+        frame_0.SetData("NEWMSG,UPDT,Q2,P35.300266 -120.661823 101.653000,SOnline,R0");
+
         std::cout << std::dec << i++ << " seconds have passed" << std::endl;
-        /*if (i == 5 || i == 6) {
-            test.AsyncWriteFrame(&frame_0);
-        }*/
+        test.AsyncWriteFrame(&frame_0);
         sleep(1);
     }
 }

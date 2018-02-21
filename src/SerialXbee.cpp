@@ -154,7 +154,7 @@ namespace XBEE {
 	}
 
 	void SerialXbee::PrintFrame(Frame *a_frame) {
-		std::cout << a_frame->ToHexString(HexFormat::BYTE_SPACING) << std::endl;
+		//std::cout << a_frame->ToHexString(HexFormat::BYTE_SPACING) << std::endl;
 	}
 
 	void SerialXbee::AsyncReadFrame() {
@@ -163,6 +163,7 @@ namespace XBEE {
 	}
 
 	void SerialXbee::AsyncWriteFrame(Frame *a_frame) {
+		std::cerr << "AUFPEAUIPFOEIAUPOFIEJA\n";
 		std::vector<uint8_t> temp = a_frame->SerializeFrame();
 		boost::asio::async_write(port, boost::asio::buffer(temp, temp.size()), boost::bind(&SerialXbee::FrameWritten, this, _1, _2, a_frame));
 	}
