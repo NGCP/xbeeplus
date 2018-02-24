@@ -72,6 +72,7 @@ namespace XBEE {
   }
 
   std::string ReceivePacket::ToHexString(HexFormat spacing) const {
+
         std::stringstream tmp;
     // TODO: Implement HexString function without third argument
       bool even_space = false;
