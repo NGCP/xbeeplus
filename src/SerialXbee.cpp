@@ -94,10 +94,10 @@ namespace XBEE {
 		read(port, buffer, transfer_exactly(read_amount));
 		
 		// Construct Frame object
+		ReceivePacket frame;
 		switch(FrameType(frame_type)) {
 			case FrameType::RECEIVE_PACKET:
 			{
-				ReceivePacket frame;
 				// Mac 64
 				for (int i = 0; i < 8; i++)
 					temp.get(holder[i]);
