@@ -24,7 +24,7 @@ namespace XBEE {
         std::string std_str(value);
         uint16_t ndx;
         uint16_t len = std_str.length();
-        char str_buf[len];
+        char str_buf[3]; // const 3 byte size (2 hex chars + null terminator)
         std::stringstream stream; // declare a stringstream to store the hex octets
 
         // loop through length of char array/std::string
@@ -56,7 +56,7 @@ namespace XBEE {
         std::string std_str(value);
         uint16_t ndx;
         uint16_t len = std_str.length();
-        char str_buf[len];
+        char str_buf[3]; // const 3 byte size (2 hex chars + null terminator)
         std::stringstream stream; // declare a stringstream to store the hex octets
 
         // loop through length of char array/std::string
