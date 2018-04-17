@@ -154,7 +154,7 @@ namespace XBEE {
 	}
 
 	void SerialXbee::PrintFrame(Frame *a_frame) {
-		std::cout << a_frame->ToHexString(HexFormat::BYTE_SPACING) << std::endl;
+		//std::cout << a_frame->ToHexString(HexFormat::BYTE_SPACING) << std::endl;
 	}
 
 	void SerialXbee::AsyncReadFrame() {
