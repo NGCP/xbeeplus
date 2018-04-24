@@ -11,6 +11,7 @@ namespace XBEE {
 	SerialXbee::SerialXbee() : io(), port(io) {
 		io.stop();
 		io.reset();
+		loop = true;
 		ReadHandler = std::bind(&SerialXbee::PrintFrame, this, std::placeholders::_1);
 		WriteHandler = std::bind(&SerialXbee::PrintFrame, this, std::placeholders::_1);
 	}
@@ -20,14 +21,23 @@ namespace XBEE {
 	}
 
 	void SerialXbee::Stop() {
-		port.cancel();
-		port.close();
+		boost::system::error_code error;
+		loop = false;
+		port.cancel(error);
+		port.close(error);
 		io.stop();
 		io.reset();
 		runner.join();
 	}
-
-	void SerialXbee::Connect(std::string device_path, uint32_t baud_rate) {
+	void SerialXbee::Connect(){
+		XBEE::SerialXbee xbee_suicide;
+		xbee_suicide.Connect2();
+		usleep(1000000);
+		xbee_suicide.Stop();
+		SerialXbee();
+		Connect2();
+	}
+	void SerialXbee::Connect2(std::string device_path, uint32_t baud_rate) {
 		boost::system::error_code connect_error;
 
 		port.open(device_path, connect_error);
@@ -65,6 +75,7 @@ namespace XBEE {
 		uint16_t frame_length;
 		uint8_t frame_type;
 		Frame *cur_frame = NULL;
+		boost::system::error_code read_error;
 
 		if (error) {
 			std::cout << "[ERROR] FOUND" << std::endl;
@@ -81,7 +92,11 @@ namespace XBEE {
 		
 		// Synchronously read the next 2 bytes of Frame (Frame Length)
 		while (buffer.size() < 3)
-			read(port, buffer, transfer_exactly(1));
+			read(port, buffer, transfer_exactly(1), read_error);
+		
+		if(read_error){
+			std::cerr << read_error.message() << std::endl;
+		}
 
 		std::istream temp(&buffer);
 		temp.get(holder[0]);
@@ -91,13 +106,16 @@ namespace XBEE {
 		frame_type = holder[0];
 
 		size_t read_amount = frame_length - buffer.size();
-		read(port, buffer, transfer_exactly(read_amount));
+		read(port, buffer, transfer_exactly(read_amount), read_error);
+		if(read_error){
+			std::cerr << read_error.message() << std::endl;
+		}
 		
 		// Construct Frame object
-		ReceivePacket frame;
 		switch(FrameType(frame_type)) {
 			case FrameType::RECEIVE_PACKET:
 			{
+				ReceivePacket frame;
 				// Mac 64
 				for (int i = 0; i < 8; i++)
 					temp.get(holder[i]);
@@ -139,7 +157,9 @@ namespace XBEE {
 				break;
 		}
 		ReadHandler(cur_frame);
-		AsyncReadFrame();
+		if(loop){
+			AsyncReadFrame();
+		}
 	}
 
 	void SerialXbee::FrameWritten(const boost::system::error_code &error, size_t num_bytes, Frame *a_frame) {
@@ -159,7 +179,9 @@ namespace XBEE {
 
 	void SerialXbee::AsyncReadFrame() {
 		auto temp = boost::bind(&SerialXbee::ParseFrame, this , _1, _2);
-		boost::asio::async_read_until(port, buffer, 0x7E, temp);
+		if(loop){
+			boost::asio::async_read_until(port, buffer, 0x7E, temp);
+		}
 	}
 
 	void SerialXbee::AsyncWriteFrame(Frame *a_frame) {
