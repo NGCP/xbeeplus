@@ -33,15 +33,14 @@ namespace XBEE {
 		XBEE::SerialXbee xbee_suicide;
 		xbee_suicide.Connect2();
 		usleep(1000000);
-		xbee_suicide.Stop();
+		tcflush(port.lowest_layer().native_handle(), TCIFLUSH);
+        xbee_suicide.Stop();
 		SerialXbee();
 		Connect2();
 	}
 	void SerialXbee::Connect2(std::string device_path, uint32_t baud_rate) {
 		boost::system::error_code connect_error;
-
 		port.open(device_path, connect_error);
-
 		if (connect_error) {
 			// TODO: Throw a "Port was unable to connect exception, append the connect_error, and port name"
 			std::cerr << "Unable to open Serial Port" << std::endl;
@@ -79,8 +78,9 @@ namespace XBEE {
 
 		if (error) {
 			std::cout << "[ERROR] FOUND" << std::endl;
+            std::cerr << error.message() << std::endl;
 			// throw an error, by repeating system error code
-		}
+		} else {
 		
 		/*if (num_bytes != 2) {
 			std::cout << "[ERROR] NOT ENOUGH BYTES" << std::endl;
@@ -160,6 +160,7 @@ namespace XBEE {
 		if(loop){
 			AsyncReadFrame();
 		}
+        }
 	}
 
 	void SerialXbee::FrameWritten(const boost::system::error_code &error, size_t num_bytes, Frame *a_frame) {
