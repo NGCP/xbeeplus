@@ -46,7 +46,7 @@ namespace XBEE {
 	public:
 		std::function<void(Frame *)> ReadHandler;
 		std::function<void(Frame *)> WriteHandler;
-		// Testing a way to call the SerialXbee class from the library itself 
+		// Testing a way to call the SerialXbee class from the library itself
 		SerialXbee();
 		~SerialXbee();
 		// TODO: Add a blocking (synchronous) read function
@@ -54,8 +54,8 @@ namespace XBEE {
 		// TODO: Add a blocking (synchronous) write function
 		void AsyncWriteFrame(Frame *a_frame);
 		// TODO: Add support for port options, data bit size, parity etc...
-		void Connect();
-		void Connect2(std::string device_path = kDefaultPath, uint32_t baud_rate = 57600);
+		int Connect();
+		int Connect2(std::string device_path = kDefaultPath, uint32_t baud_rate = 57600);
 		void Stop();
 	};
 }
