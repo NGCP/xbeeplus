@@ -29,22 +29,25 @@ namespace XBEE {
 		io.reset();
 		runner.join();
 	}
-	void SerialXbee::Connect(){
+	int SerialXbee::Connect(){
 		XBEE::SerialXbee xbee_suicide;
-		xbee_suicide.Connect2();
+		if(xbee_suicide.Connect2() != EXIT_SUCCESS) {
+			return EXIT_FAILURE;
+		}
 		usleep(1000000);
 		tcflush(port.lowest_layer().native_handle(), TCIFLUSH);
         xbee_suicide.Stop();
 		SerialXbee();
-		Connect2();
+		return Connect2();
 	}
-	void SerialXbee::Connect2(std::string device_path, uint32_t baud_rate) {
+	int SerialXbee::Connect2(std::string device_path, uint32_t baud_rate) {
 		boost::system::error_code connect_error;
 		port.open(device_path, connect_error);
+		
 		if (connect_error) {
 			// TODO: Throw a "Port was unable to connect exception, append the connect_error, and port name"
 			std::cerr << "Unable to open Serial Port" << std::endl;
-			exit(EXIT_FAILURE);
+			return EXIT_FAILURE;
 		}
 
 		port.set_option(boost::asio::serial_port_base::baud_rate(baud_rate));
@@ -62,6 +65,8 @@ namespace XBEE {
 
 		// Let the io_service run in background while main thread continues
 		runner = boost::thread(boost::bind(&boost::asio::io_service::run, &io));
+
+		return EXIT_SUCCESS;
 	}
 
 	// TODO: Clean up and optimize this messy code when time permits
@@ -81,7 +86,7 @@ namespace XBEE {
             std::cerr << error.message() << std::endl;
 			// throw an error, by repeating system error code
 		} else {
-		
+
 		/*if (num_bytes != 2) {
 			std::cout << "[ERROR] NOT ENOUGH BYTES" << std::endl;
 		}*/
@@ -89,11 +94,11 @@ namespace XBEE {
 		// Clears buffer (Should only contain 0x7E delimiter, which is added automatically when new Frame object is created)
 		buffer.consume(num_bytes);
 		num_bytes = 0;
-		
+
 		// Synchronously read the next 2 bytes of Frame (Frame Length)
 		while (buffer.size() < 3)
 			read(port, buffer, transfer_exactly(1), read_error);
-		
+
 		if(read_error){
 			std::cerr << read_error.message() << std::endl;
 		}
@@ -110,7 +115,7 @@ namespace XBEE {
 		if(read_error){
 			std::cerr << read_error.message() << std::endl;
 		}
-		
+
 		// Construct Frame object
 		switch(FrameType(frame_type)) {
 			case FrameType::RECEIVE_PACKET:
