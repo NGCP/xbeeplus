@@ -244,7 +244,7 @@ int main(int argc, char* argv[]) {
     // Warning API level 1 (no escapes)
     XBEE::SerialXbee test;
     // Wrap in a try/catch block for error checking
-    test.Connect();
+    test.Connect(0x0013A20040A815D6);
     test.ReadHandler = std::bind(&CallbackFunction, std::placeholders::_1);
 
     XBEE::TransmitRequest frame_0(0x0013A200409BD79C);
