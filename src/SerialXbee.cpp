@@ -12,6 +12,7 @@ namespace XBEE {
 		io.stop();
 		io.reset();
 		loop = true;
+		connect_success = false;
 		ReadHandler = std::bind(&SerialXbee::PrintFrame, this, std::placeholders::_1);
 		WriteHandler = std::bind(&SerialXbee::PrintFrame, this, std::placeholders::_1);
 	}
@@ -29,16 +30,31 @@ namespace XBEE {
 		io.reset();
 		runner.join();
 	}
-	void SerialXbee::Connect(){
-		XBEE::SerialXbee xbee_suicide;
-		xbee_suicide.Connect2();
-		usleep(1000000);
+
+	void SerialXbee::Connect(uint64_t my_MAC, std::string device_path, uint32_t baud_rate) {
 		tcflush(port.lowest_layer().native_handle(), TCIFLUSH);
-        xbee_suicide.Stop();
-		SerialXbee();
-		Connect2();
+
+		std::function<void(Frame *)> save_ReadHandler = ReadHandler;
+		ReadHandler = std::bind(&SerialXbee::SetConnectSuccess, this, std::placeholders::_1);
+
+		while(!connect_success) {
+			std::cerr << "Attempting to connect" << std::endl;
+			ConnectAttempt(device_path, baud_rate);
+			TransmitRequest frame_0(my_MAC);
+			frame_0.SetData("Connection Test");
+			AsyncWriteFrame(&frame_0);
+			usleep(1000000);
+
+			if(!connect_success) {
+				Stop();
+			}
+		}
+
+		ReadHandler = save_ReadHandler;
 	}
-	void SerialXbee::Connect2(std::string device_path, uint32_t baud_rate) {
+
+	/* Attempts to connect to port */
+	void SerialXbee::ConnectAttempt(std::string device_path, uint32_t baud_rate) {
 		boost::system::error_code connect_error;
 		port.open(device_path, connect_error);
 		if (connect_error) {
@@ -64,6 +80,30 @@ namespace XBEE {
 		runner = boost::thread(boost::bind(&boost::asio::io_service::run, &io));
 	}
 
+	void SerialXbee::SetConnectSuccess(Frame *frame) {
+		std::cerr << "Packet Received" << std::endl;
+
+  		XBEE::ReceivePacket *r_packet = dynamic_cast<XBEE::ReceivePacket *>(frame);
+		std::string str_data;
+		if (r_packet != NULL)
+		{
+			str_data = r_packet->GetData();
+		}
+		else {
+			std::cerr << "Invalid packet received" << std::endl;
+			return;
+		}
+
+		if(!str_data.compare("Connection Test")) {
+			std::cerr << str_data << std::endl;
+			connect_success = true;
+		}
+		else {
+			std::cerr << "Invalid message received: " << str_data << std::endl;
+		}
+
+	}
+
 	// TODO: Clean up and optimize this messy code when time permits
 	// TODO: Implement checksum checking
 	void SerialXbee::ParseFrame(const boost::system::error_code &error, size_t num_bytes) {
@@ -80,6 +120,7 @@ namespace XBEE {
 			std::cout << "[ERROR] FOUND" << std::endl;
             std::cerr << error.message() << std::endl;
 			// throw an error, by repeating system error code
+			AsyncReadFrame();
 		} else {
 		
 		/*if (num_bytes != 2) {

@@ -33,6 +33,7 @@ namespace XBEE {
 		boost::asio::streambuf buffer;
 		boost::thread runner;
 		bool loop;
+		bool connect_success;
 
 		// Parses the incoming data into appropriate Frames
 		void ParseFrame(const boost::system::error_code &error, size_t num_bytes);
@@ -54,9 +55,13 @@ namespace XBEE {
 		// TODO: Add a blocking (synchronous) write function
 		void AsyncWriteFrame(Frame *a_frame);
 		// TODO: Add support for port options, data bit size, parity etc...
-		void Connect();
-		void Connect2(std::string device_path = kDefaultPath, uint32_t baud_rate = 57600);
+		void Connect(uint64_t my_MAC, std::string device_path = kDefaultPath, uint32_t baud_rate = 57600);
+
 		void Stop();
+
+	private:
+		void ConnectAttempt(std::string device_path, uint32_t baud_rate);
+		void SetConnectSuccess(Frame *a_frame);
 	};
 }
 #endif

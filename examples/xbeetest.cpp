@@ -236,26 +236,26 @@ int TestByteSum() {
     return 0;
 }
 
-int main(int argc, char* argv[]) {
-    if (TestHexString()) cout << "HexString test failed" << std::endl;
-    if (TestByteSum()) cout << "ByteSum test failed" << std::endl;
+void CallbackFunction(Frame *a_frame) {
+    std::cerr << "Packet received" << std::endl; 
+}
 
+int main(int argc, char* argv[]) {
     // Warning API level 1 (no escapes)
     XBEE::SerialXbee test;
     // Wrap in a try/catch block for error checking
     test.Connect();
-    /*
-    XBEE::TransmitRequest frame_0(0x0013A20040A815D6);
-    frame_0.SetData("Hello QuadD!");
-    */
+    test.ReadHandler = std::bind(&CallbackFunction, std::placeholders::_1);
+
+    XBEE::TransmitRequest frame_0(0x0013A200409BD79C);
+    frame_0.SetData("Hello GCS!");
+    
     test.AsyncReadFrame();
     int i = 0;
 
     while(true) {
         std::cout << std::dec << i++ << " seconds have passed" << std::endl;
-        /*if (i == 5 || i == 6) {
-            test.AsyncWriteFrame(&frame_0);
-        }*/
+        //test.AsyncWriteFrame(&frame_0);
         sleep(1);
     }
 }
