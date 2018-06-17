@@ -15,6 +15,7 @@
 #define UTILITY_HPP
 
 #include <vector>
+#include "jpeg-9c/jpeglib.h"
 
 namespace XBEE {
   // HexString functions and overloads
@@ -25,6 +26,7 @@ namespace XBEE {
   inline std::string HexString(const std::string &value, bool is_spaced = true,  bool end_space = false);
     
   // ByteSum functions and overloads
+  inline void CompressImage(JSAMPLE *image, int image_width, int image_height, std::string imageName);
   inline uint8_t ByteSum(char *item);
   inline uint8_t ByteSum(const char *item);
   inline uint8_t ByteSum(const std::string& item);

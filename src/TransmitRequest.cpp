@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <sstream>
 
+#include"../include/jpeg-9c/jpeglib.h"
 #include "../include/TransmitRequest.hpp"
 #include "../include/Xbee.hpp"
 #include "../include/Utility.hpp"
@@ -34,6 +35,34 @@ namespace XBEE {
     TransmitRequest::SetChecksum();
   }
 
+  void SendImage(JSAMPLE *image, int width, int height,  SerialXbee xbee) {
+      CompressImage(image, width, height, "compress.jpeg");
+      std::ifstream image("compress.jpeg", std::ios::binary);
+      if(image.fail())
+         throw std::runtime_error("Unable to find image");
+      XBEE::TransmitRequest currentRequest();
+      std::array<uint8_t, 256> packet;
+      //Signify start of image packet
+      currentRequest.setData(START_OF_IMAGE);
+      xbee.AsyncWriteFrame(&currentRequest);
+      
+      //Loop sending compressed image file content until EOF
+      while(1) {
+          if(image.eof()) {
+             image.close();
+             break;
+          }
+          image.read(packet, 256);
+          currentRequest = TransmitRequest();
+          currentRequest.data = packet;
+          xbee.AsyncWriteFrame(&currentRequest);
+      }
+
+      //Signify end of image packet
+      currentRequest = TransmitRequest();
+      currentRequest.setData(END_OF_IMAGE);
+      xbee.AsyncWriteFrame(&currentRequest);
+  }
   std::string TransmitRequest::ToHexString(HexFormat spacing) const {
     std::stringstream tmp;
     // TODO: Implement HexString function without third argument
@@ -93,6 +122,14 @@ namespace XBEE {
     }
     TransmitRequest::SetLength();
     TransmitRequest::SetChecksum();
+  }
+
+  
+
+   void TransmitRequest::SetData(ifstream &imageFile) {
+     auto data_itr = data.begin();
+
+      
   }
 
   void TransmitRequest::SetLength() {
