@@ -1,11 +1,45 @@
 #include <sstream>
 #include <array>
 #include <algorithm>
+#include <iostream>
+#include <cstdio>
 
+#include "../include/jpeg-9c/jpeglib.h"
 #include "../include/Xbee.hpp"
 #include "../include/Utility.hpp"
 
 namespace XBEE {
+    
+    inline void CompressImage(JSAMPLE *image, int image_width, int image_height, std::string imageName) {
+        struct jpeg_compress_struct cinfo;
+        struct jpeg_error_mgr jerr;
+        FILE *outputFile;
+        JSAMPROW row_pointer[1];
+        int row_stride = image_width * 3;
+
+        cinfo.err = jpeg_std_error(&jerr);
+        jpeg_create_compress(&cinfo);
+
+        if((outputFile = fopen((imageName + ".jpeg").c_str(), "wb")) == NULL) {
+           throw std::runtime_error("Unable to open file");
+        }
+        jpeg_stdio_dest(&cinfo, outputFile);
+        cinfo.image_width = image_width;
+        cinfo.image_height = image_height;
+        cinfo.input_components = 3;
+        cinfo.in_color_space = JCS_RGB;
+
+        jpeg_set_defaults(&cinfo);
+        
+        jpeg_start_compress(&cinfo, TRUE);
+
+        while(cinfo.next_scanline < cinfo.image_height) {
+           row_pointer[0] = & image[cinfo.next_scanline * row_stride];
+           (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
+        }
+
+        jpeg_finish_compress(&cinfo);
+    }
 
     inline std::string HexString(char value[], bool is_spaced,  bool end_space) {
         /* Function to convert a char array (c string) into a std::string of containing hex value octets

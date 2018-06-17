@@ -4,7 +4,8 @@
 #include "Xbee.hpp"
 #include "Frame.hpp"
 #include "ReceivePacket.hpp"
-
+#define END_OF_IMAGE "END_OF_IMAGE"
+#define START_OF_IMAGE "START_OF_IMAGE"
 namespace XBEE {
 	// Allow API mode 2 (Escape characters 0x7E, 0x7D, 0x13, 0x11)
 	class TransmitRequest: public Frame {
@@ -17,7 +18,7 @@ namespace XBEE {
 		// Currently this rewrites the entire data buffer with string value
 		// Fix this so it appends the data buffer
 		void SetData(const std::string &message);
-
+      void SendImage(JSAMPLE *image, int width, int height, SerialXbee xbee);
 		std::string ToHexString(HexFormat spacing = HexFormat::NO_SPACING) const;
 		std::vector<uint8_t> SerializeFrame() const;
 
